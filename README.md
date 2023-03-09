@@ -1,5 +1,13 @@
-# SmartStorage
-dispensa smart, basata sui codici a barre dei prodotti, invia automaticamente al lista dei beni utilizzati
+<div align="center">
+  <p>
+      <img width="20%" src="/arduino-icon.svg">
+  </p>
+  <b><h1> Smart Storage </h1></b>
+  <p>Soluzione automatica per gestione dispensa usando <a href="https://www.arduino.cc"> Arduino </a></p>
+</div>
+<br>
+
+<br>
 
 ## casi d'uso
 - caricare prodotti tramite scansione codice a barre
