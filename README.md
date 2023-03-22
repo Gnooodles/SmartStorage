@@ -1,6 +1,6 @@
 <div align="center">
   <p>
-      <img width="20%" src="/arduino.svg">
+      <img width="20%" src="./arduino.svg">
   </p>
   <b><h1> Smart Storage </h1></b>
   <p>Automatic solutions for home grocery storage management using<href="https://www.arduino.cc"> Arduino </a></p>
@@ -20,6 +20,4 @@ Describe the project ...
 
 ## Technology
 For this project we used Arduino, barcode scanner, python ...
-
-
 
