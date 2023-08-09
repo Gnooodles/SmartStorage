@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 
-SoftwareSerial serio(3, 2); // RX, TX 
+SoftwareSerial serio(3, 2); // RX nero, TX giallo
 
 
 void setup() {
