@@ -1,9 +1,9 @@
 #include <SoftwareSerial.h>
 
-SoftwareSerial serio(3, 2); // RX nero, TX giallo
+SoftwareSerial serio(2, 3); // RX nero, TX giallo
 
+void setup(){
 
-void setup() {
   Serial.begin(9600);
   serio.begin(9600);
   delay(1000);
