@@ -6,11 +6,11 @@ def setup(port: str) -> pyfirmata.Arduino:
     Crea la board di Arduino e inizializza e fa partire l'Iterator
     @return board di Arduino
     """
-    print('start setup...')
+    print("start setup...")
     board = pyfirmata.Arduino(port)
     it = pyfirmata.util.Iterator(board)
     it.start()
-    print('setup completed!')
+    print("setup completed!")
     return board
 
 

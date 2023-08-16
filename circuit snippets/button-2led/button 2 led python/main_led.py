@@ -1,7 +1,7 @@
 from arduino_functions import *
 import time
 
-board = setup('/dev/tty.usbmodem1201')
+board = setup("/dev/tty.usbmodem1201")
 
 # specifichiamo i pin dei collegamenti sulla board
 button = get_digital_pin(board, 2)
