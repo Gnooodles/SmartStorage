@@ -28,6 +28,26 @@ def recieve_data():
 
     return data
 
+status = ''
+
 while True:
     start_scan()
-    print(recieve_data())
+
+    recieved_data = recieve_data()
+
+    if recieved_data == 'CARICA':
+        status = 'CARICA'
+    elif recieved_data == 'SCARICA':
+        status = 'SCARICA'
+    else:
+        if status == 'CARICA':
+            # carica su db
+            print(f'Stato: {status} - {recieved_data}')
+        elif status == 'SCARICA':
+            # scarica dal db e mette nella lista
+            print(f'Stato: {status} - {recieved_data}')
+        else:
+            # TODO caso in cui status è vuoto
+            pass
+    
+    
