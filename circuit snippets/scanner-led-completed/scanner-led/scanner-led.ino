@@ -1,13 +1,27 @@
 /*
-
-  This example shows how to detect when a button or button changes the led status from off to on
-  and on to off.
-
-  The circuit:
-  - pushbutton attached to pin 2 from +5V
-  - 10 kilohm resistor attached to pin 2 from ground
-  - LED attached from pin 13 to ground through 220 ohm resistor
-*/
+ * Barcode Scanner and LED Control using Arduino
+ * 
+ * This sketch utilizes an Arduino board to control two LEDs (LED 1 and LED 2) and read barcode data from a barcode scanner module 
+ * using SoftwareSerial communication. It also monitors a pushbutton to toggle between different LED states. 
+ * LED 1 is associated with the "CARICA" state and LED 2 is associated with the "SCARICA" state.
+ * 
+ * Components Used:
+ * - Arduino board
+ * - Two LEDs (LED 1 and LED 2)
+ * - Pushbutton
+ * - Barcode scanner module (connected via SoftwareSerial on pins 2 (RX) and 3 (TX))
+ * 
+ * Pin Configuration:
+ * - LED 1: Connected to pin 8
+ * - LED 2: Connected to pin 4
+ * - Pushbutton: Connected to pin 7
+ * - Barcode scanner module RX: Connected to pin 2
+ * - Barcode scanner module TX: Connected to pin 3
+ * 
+ * The sketch reads barcode data from the scanner and toggles between LED states based on button presses. 
+ * When a barcode is read, it is printed to the Serial Monitor.
+ * 
+ */
 
 #include <SoftwareSerial.h>
 
@@ -15,7 +29,7 @@
 const int buttonPin = 7;  // the pin that the pushbutton is attached to
 const int led1Pin = 8;    // the pin that the LED 1 is attached to
 const int led2Pin = 4;    // the pin that te LED 2 is attached to
-SoftwareSerial serio(2, 3); // RX nero, TX giallo
+SoftwareSerial barcodeSerial(2, 3); // RX black cable, TX yellow cable
 
 // Variables will change:
 int led1 = 0;               // current state of the led 1
@@ -38,8 +52,7 @@ void setup() {
   pinMode(led2Pin, OUTPUT);
   // initialize serial communication:
   Serial.begin(9600);
-
-  serio.begin(9600);
+  barcodeSerial.begin(9600);
   delay(1000);
 }
 
@@ -47,9 +60,9 @@ void setup() {
 void loop() {
 
   char barcodeData[15];
-
-  while (serio.available()) {
-    char c = serio.read();
+  // while there are bytes available
+  while (barcodeSerial.available()) {
+    char c = barcodeSerial.read();
     lastCharTime = millis();  // Update last character time
 
     if (dataLength < sizeof(barcodeData) - 1) {
