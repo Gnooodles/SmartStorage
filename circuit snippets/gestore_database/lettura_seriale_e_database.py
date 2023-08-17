@@ -1,12 +1,9 @@
 import time
-import sqlite3
 import serial
 from setup_database import *
 
 ser = serial.Serial("/dev/tty.usbmodem1201", 9600, timeout=0)
 SCAN_DURATION = 5
-
-
 
 
 def start_scan():
