@@ -72,7 +72,7 @@ void loop() {
 
   if (dataLength > 0 && millis() - lastCharTime > timeout) {
     barcodeData[dataLength] = '\0';  // Add null terminator
-    Serial.println("Barcode read: " + String(barcodeData));
+    Serial.println(String(barcodeData));
     dataLength = 0;
   }
 
