@@ -1,3 +1,4 @@
+from barcode_name_finder import get_name_from_barcode
 import sqlite3
 import os
 
@@ -27,8 +28,8 @@ def add_item(barcode: str) -> None:
     If the item with the given barcode doesn't exist in the database, a new entry is added.
     If the item already exists, its quantity is incremented by 1.
     """
-    # TODO: Implement 'get_name_from_barcode' function to fetch the item's name based on the barcode.
-    name = ""
+    # Fetch the item's name based on the barcode.
+    name = get_name_from_barcode(barcode)
 
     # Check if the item already exists in the database
     existing_item = cur.execute(
