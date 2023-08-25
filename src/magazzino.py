@@ -3,6 +3,16 @@ import os
 
 
 class Magazzino:
+    """
+    A class representing a storage system.
+
+    This class provides methods to manage an SQLite-based storage system for items
+    identified by barcodes. It allows adding, removing, and querying items in the database.
+
+    Args:
+        path (str): The path to the SQLite database file.
+    """
+
     def __init__(self, path: str) -> None:
         self.path = path
         if not self._database_exists():

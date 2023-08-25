@@ -1,10 +1,14 @@
 from lettura_seriale import *
 from magazzino import Magazzino
 
+# Create an instance of the Magazzino class, initializing the storage system
 magazzino = Magazzino("magazzino.db")
 
+# Initialize the status variable to track the current operation mode
 status = ""
+
 while True:
+    # Continuously monitor and process data from serial input
     start_scan()
     received_data = recieve_data()
 
