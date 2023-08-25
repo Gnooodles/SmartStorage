@@ -1,10 +1,10 @@
 import csv
 import sqlite3
 
-conn = sqlite3.connect('barcode.db')
+conn = sqlite3.connect("barcode.db")
 cur = conn.cursor()
 
-with open('barcode.csv') as f:
+with open("barcode.csv") as f:
     reader = csv.reader(f)
     data = list(reader)
 
@@ -16,5 +16,3 @@ for row in data:
 
 conn.commit()
 conn.close()
-
-

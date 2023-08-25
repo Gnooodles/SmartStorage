@@ -5,6 +5,7 @@ import serial
 ser = serial.Serial("/dev/tty.usbmodem1201", 9600, timeout=0)
 SCAN_DURATION = 5
 
+
 def start_scan():
     """
     Start a scan by sending the appropriate command to the serial source.
@@ -46,4 +47,3 @@ def recieve_data() -> str:
             received_data += byte
 
     return received_data
-

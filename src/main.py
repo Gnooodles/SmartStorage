@@ -1,4 +1,4 @@
-from lettura_seriale_e_database import *
+from lettura_seriale import *
 from magazzino import Magazzino
 
 magazzino = Magazzino("magazzino.db")
