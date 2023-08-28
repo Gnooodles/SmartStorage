@@ -1,8 +1,10 @@
 from lettura_seriale import *
 from magazzino import Magazzino
+from lista_spesa import ListaSpesa
 
 # Create an instance of the Magazzino class, initializing the storage system
 magazzino = Magazzino("magazzino.db")
+lista_spesa = ListaSpesa("listaspesa.db")
 
 # Initialize the status variable to track the current operation mode
 status = ""
@@ -21,10 +23,12 @@ while True:
             # Load product into the database
             print(f"{status} - {received_data}")
             magazzino.add_item(received_data)
+            lista_spesa.remove_one_item(received_data)
         elif status == "SCARICA":
             # Remove product from the database
             print(f"{status} - {received_data}")
             magazzino.remove_one_item(received_data)
+            lista_spesa.add_item(received_data)
         else:
             # TODO: Handle case when status is empty
             pass
