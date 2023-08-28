@@ -39,7 +39,7 @@ class Magazzino:
         If the item already exists, its quantity is incremented by 1.
         """
         # TODO Fetch the item's name based on the barcode.
-        name = ""  # get_name_from_barcode(barcode)
+        name = "" #get_name_from_barcode(barcode)
 
         # Check if the item already exists in the database
         existing_item = self.cur.execute(
