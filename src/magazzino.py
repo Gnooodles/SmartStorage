@@ -41,7 +41,7 @@ class Magazzino:
                 
         # Retrieve the name of the item from the database using the provided barcode
         item_name = self.cur.execute(
-            f"SELECT product_name FROM magazzino WHERE barcode = '{barcode}'"
+            f"SELECT product_name FROM prodotti WHERE barcode = '{barcode}'"
         ).fetchone()[0]
         return item_name
 
