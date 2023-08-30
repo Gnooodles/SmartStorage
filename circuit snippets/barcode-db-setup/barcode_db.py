@@ -6,7 +6,9 @@ con = sqlite3.connect("prodotti.db")
 cur = con.cursor()
 
 # Create a table named "prodotti" with specified columns
-cur.execute("CREATE TABLE IF NOT EXISTS prodotti(id, code TEXT, name, quantity, brands, brands_tag, categories, categories_en)")
+cur.execute(
+    "CREATE TABLE IF NOT EXISTS prodotti(id, code TEXT, name, quantity, brands, brands_tag, categories, categories_en)"
+)
 
 # Load data from a CSV file named "dati_ita_filtered.csv" using pandas
 data = pd.read_csv("dati_ita_filtered.csv")
@@ -20,5 +22,3 @@ data.to_sql("prodotti", con, if_exists="replace", index=False)
 # Commit the changes and close the database connection
 con.commit()
 con.close()
-
-

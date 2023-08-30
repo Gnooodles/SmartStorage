@@ -6,7 +6,7 @@ from lista_spesa import ListaSpesa
 # Create an instance of the Magazzino class, initializing the storage system
 prodotti = Prodotti("prodotti.db")
 magazzino = Magazzino("magazzino.db", prodotti)
-lista_spesa = ListaSpesa("listaspesa.db")
+lista_spesa = ListaSpesa("listaspesa.db", prodotti)
 
 # Initialize the status variable to track the current operation mode
 status = ""

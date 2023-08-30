@@ -33,6 +33,8 @@ class Magazzino:
         If the item with the given barcode doesn't exist in the database, a new entry is added.
         If the item already exists, its quantity is incremented by 1.
         """
+        if barcode == "":
+            return
         # Fetch the item's name based on the barcode.
         name = self.prodotti.get_name_from_barcode(barcode)
 
@@ -46,7 +48,7 @@ class Magazzino:
             self.cur.execute(f"INSERT INTO magazzino VALUES ('{barcode}', '{name}', 1)")
         else:
             # Increment the quantity of the existing item
-            quantity = self._get_item_quantity(barcode)
+            quantity = self.get_item_quantity(barcode)
             self.cur.execute(
                 f"UPDATE magazzino SET quantity = {quantity + 1} WHERE barcode = '{barcode}'"
             )
@@ -72,7 +74,7 @@ class Magazzino:
         """
         os.remove(self.path)
 
-    def _get_item_quantity(self, barcode: str) -> int:
+    def get_item_quantity(self, barcode: str) -> int:
         """
         Get the quantity of a specific item based on its barcode.
 
@@ -84,8 +86,11 @@ class Magazzino:
         """
         current_quantity = self.cur.execute(
             f"SELECT quantity FROM magazzino WHERE barcode = '{barcode}'"
-        ).fetchone()[0]
-        return current_quantity
+        ).fetchone()
+        if current_quantity is None:
+            return 0
+            
+        return current_quantity[0]
 
     def remove_one_item(self, barcode: str):
         """
@@ -102,7 +107,7 @@ class Magazzino:
         ).fetchone()
 
         if existing_item is not None:
-            quantity = self._get_item_quantity(barcode)
+            quantity = self.get_item_quantity(barcode)
 
             if quantity == 1:
                 self.cur.execute(f"DELETE FROM magazzino WHERE barcode = '{barcode}'")

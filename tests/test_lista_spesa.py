@@ -1,18 +1,20 @@
 from src.lista_spesa import ListaSpesa
+from src.prodotti import Prodotti
 import os
 
 
 MOCK_PATH = "tests/mock_lista_spesa.db"
+PRODOTTI = Prodotti("prodotti.db")
 
 
 def test_database_creation():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     assert os.path.isfile(MOCK_PATH)
     os.remove(MOCK_PATH)
 
 
 def test_add_one_item():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.add_item("001")
     expected_items = [("001", "", 1)]
     current_items = lista_spesa.get_items()
@@ -21,18 +23,16 @@ def test_add_one_item():
 
 
 def test_add_one_item_empty():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.add_item("")
     expected_items = []
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
-    # FIXME gestire il caso in cui il barcode sia stringa vuota,
-    # non dovrebbe aggiungere nulla, invece aggiunge un item ("", "", 1) che non va bene
 
 
 def test_add_multiple_items():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.add_item("001")
     lista_spesa.add_item("002")
     expected_items = [("001", "", 1), ("002", "", 1)]
@@ -42,7 +42,7 @@ def test_add_multiple_items():
 
 
 def test_add_item_multiple_times():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.add_item("001")
     lista_spesa.add_item("001")
     lista_spesa.add_item("001")
@@ -53,7 +53,7 @@ def test_add_item_multiple_times():
 
 
 def test_get_items():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.add_item("001")
     lista_spesa.add_item("002")
     current_items = lista_spesa.get_items()
@@ -62,20 +62,20 @@ def test_get_items():
 
 
 def test_get_items_non_present():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
     assert len(current_items) == 0
 
 
 def test_erase_database():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.erase_database()
     assert not os.path.isfile(MOCK_PATH)
 
 
 def test_get_item_quantity():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.add_item("001")
     lista_spesa.add_item("001")
     current_quantity = lista_spesa.get_item_quantity("001")
@@ -84,7 +84,7 @@ def test_get_item_quantity():
 
 
 def test_get_item_quantity_non_present():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     current_quantity = lista_spesa.get_item_quantity("001")
     os.remove(MOCK_PATH)
     assert current_quantity == 0
@@ -94,7 +94,7 @@ def test_get_item_quantity_non_present():
 
 
 def test_remove_one_item():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.add_item("001")
     lista_spesa.remove_one_item("001")
     expected_items = []
@@ -102,8 +102,9 @@ def test_remove_one_item():
     os.remove(MOCK_PATH)
     assert current_items == expected_items
 
+
 def test_remove_one_item_with_multiple():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.add_item("001")
     lista_spesa.add_item("002")
     lista_spesa.remove_one_item("001")
@@ -114,7 +115,7 @@ def test_remove_one_item_with_multiple():
 
 
 def test_remove_one_item_where_there_are_multiple():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.add_item("001")
     lista_spesa.add_item("001")
     lista_spesa.remove_one_item("001")
@@ -125,7 +126,7 @@ def test_remove_one_item_where_there_are_multiple():
 
 
 def test_remove_one_item_non_present():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.remove_one_item("001")
     expected_items = []
     current_items = lista_spesa.get_items()
@@ -134,7 +135,7 @@ def test_remove_one_item_non_present():
 
 
 def test_remove_one_item_non_present_with_other_items():
-    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
     lista_spesa.add_item("002")
     lista_spesa.add_item("002")
     lista_spesa.add_item("003")

@@ -1,4 +1,5 @@
 import sqlite3
+from prodotti import Prodotti
 import os
 
 
@@ -13,20 +14,15 @@ class ListaSpesa:
         path (str): The path to the SQLite database file.
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, prodotti: Prodotti) -> None:
         self.path = path
-        if not self._database_exists():
-            self.con = sqlite3.connect(self.path)
-            self.cur = self.con.cursor()
-            self.cur.execute(
-                "CREATE TABLE lista(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
-            )
-        else:
-            self.con = sqlite3.connect(self.path)
-            self.cur = self.con.cursor()
-
-    def _database_exists(self):
-        return os.path.isfile(self.path)
+        self.prodotti = prodotti
+        self.con = sqlite3.connect(self.path)
+        self.cur = self.con.cursor()
+        self.cur.execute(
+            "CREATE TABLE IF NOT EXISTS lista(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
+        )
+        
 
     def add_item(self, barcode: str) -> None:
         """
@@ -38,8 +34,10 @@ class ListaSpesa:
         If the item with the given barcode doesn't exist in the database, a new entry is added.
         If the item already exists, its quantity is incremented by 1.
         """
-        # TODO Fetch the item's name based on the barcode.
-        name = ""  # get_name_from_barcode(barcode)
+        if barcode == "":
+            return
+
+        name = self.prodotti.get_name_from_barcode(barcode)
 
         # Check if the item already exists in the database
         existing_item = self.cur.execute(
@@ -89,8 +87,12 @@ class ListaSpesa:
         """
         current_quantity = self.cur.execute(
             f"SELECT quantity FROM lista WHERE barcode = '{barcode}'"
-        ).fetchone()[0]
-        return current_quantity
+        ).fetchone()
+
+        if current_quantity is None:
+            return 0
+            
+        return current_quantity[0]
 
     def remove_one_item(self, barcode: str):
         """

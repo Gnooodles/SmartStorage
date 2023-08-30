@@ -1,7 +1,7 @@
 import sqlite3
 
-class Prodotti:
 
+class Prodotti:
     def __init__(self, path: str) -> None:
         self.path = path
         self.con = sqlite3.connect(self.path)
@@ -17,9 +17,13 @@ class Prodotti:
         Returns:
             str: The name of the item associated with the given barcode.
         """
-                
+
         # Retrieve the name of the item from the database using the provided barcode
         item_name = self.cur.execute(
             f"SELECT product_name FROM prodotti WHERE barcode = '{barcode}'"
-        ).fetchone()[0]
-        return item_name
+        ).fetchone()
+
+        if item_name is None:
+            return ""
+
+        return item_name[0]
