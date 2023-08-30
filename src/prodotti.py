@@ -20,7 +20,7 @@ class Prodotti:
 
         # Retrieve the name of the item from the database using the provided barcode
         item_name = self.cur.execute(
-            f"SELECT product_name FROM prodotti WHERE barcode = '{barcode}'"
+            f"SELECT product_name FROM prodotti WHERE code = '{barcode}'"
         ).fetchone()
 
         if item_name is None:
