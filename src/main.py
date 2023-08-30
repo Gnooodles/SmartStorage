@@ -1,9 +1,11 @@
 from lettura_seriale import *
 from magazzino import Magazzino
+from prodotti import Prodotti
 from lista_spesa import ListaSpesa
 
 # Create an instance of the Magazzino class, initializing the storage system
-magazzino = Magazzino("magazzino.db")
+prodotti = Prodotti("prodotti.db")
+magazzino = Magazzino("magazzino.db", prodotti)
 lista_spesa = ListaSpesa("listaspesa.db")
 
 # Initialize the status variable to track the current operation mode

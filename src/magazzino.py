@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from prodotti import Prodotti
 
 
 class Magazzino:
@@ -13,38 +14,14 @@ class Magazzino:
         path (str): The path to the SQLite database file.
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, prodotti: Prodotti) -> None:
         self.path = path
-        if not self._database_exists():
-            self.con = sqlite3.connect(self.path)
-            self.cur = self.con.cursor()
-            self.cur.execute(
-                "CREATE TABLE magazzino(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
-            )
-        else:
-            self.con = sqlite3.connect(self.path)
-            self.cur = self.con.cursor()
-
-    def _database_exists(self):
-        return os.path.isfile(self.path)
-    
-    def _get_name_from_barcode(self, barcode: str) -> str:
-        """
-        Retrieve the name of an item from the database using its barcode.
-
-        Args:
-            barcode (str): The barcode of the item to look up in the database.
-
-        Returns:
-            str: The name of the item associated with the given barcode.
-        """
-                
-        # Retrieve the name of the item from the database using the provided barcode
-        item_name = self.cur.execute(
-            f"SELECT product_name FROM prodotti WHERE barcode = '{barcode}'"
-        ).fetchone()[0]
-        return item_name
-
+        self.prodotti = prodotti
+        self.con = sqlite3.connect(self.path)
+        self.cur = self.con.cursor()
+        self.cur.execute(
+            "CREATE TABLE IF NOT EXISTS magazzino(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
+        )
 
     def add_item(self, barcode: str) -> None:
         """
@@ -57,7 +34,7 @@ class Magazzino:
         If the item already exists, its quantity is incremented by 1.
         """
         # Fetch the item's name based on the barcode.
-        name = self._get_name_from_barcode(barcode)
+        name = self.prodotti.get_name_from_barcode(barcode)
 
         # Check if the item already exists in the database
         existing_item = self.cur.execute(
