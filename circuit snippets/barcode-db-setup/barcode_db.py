@@ -11,7 +11,7 @@ cur.execute(
 )
 
 # Load data from a CSV file named "dati_ita_filtered.csv" using pandas
-data = pd.read_csv("dati_all_filtered.csv")
+data = pd.read_csv("dati_ita_filtered.csv")
 
 # TODO: Convert the 'code' column to string type (uncomment the line below)
 data["code"] = data["code"].astype(str).str.split(".").str[0]
