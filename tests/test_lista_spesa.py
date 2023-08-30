@@ -16,8 +16,8 @@ def test_database_creation():
 
 def test_add_one_item():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
-    lista_spesa.add_item("001")
-    expected_items = [("001", "", 1)]
+    lista_spesa.add_item("111111")
+    expected_items = [("111111", "test", 1)]
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
@@ -34,9 +34,9 @@ def test_add_one_item_empty():
 
 def test_add_multiple_items():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
-    lista_spesa.add_item("001")
-    lista_spesa.add_item("002")
-    expected_items = [("001", "", 1), ("002", "", 1)]
+    lista_spesa.add_item("111111")
+    lista_spesa.add_item("222222")
+    expected_items = [("111111", "test", 1), ("222222", "test", 1)]
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
@@ -44,10 +44,10 @@ def test_add_multiple_items():
 
 def test_add_item_multiple_times():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
-    lista_spesa.add_item("001")
-    lista_spesa.add_item("001")
-    lista_spesa.add_item("001")
-    expected_items = [("001", "", 3)]
+    lista_spesa.add_item("111111")
+    lista_spesa.add_item("111111")
+    lista_spesa.add_item("111111")
+    expected_items = [("111111", "test", 3)]
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
@@ -55,8 +55,8 @@ def test_add_item_multiple_times():
 
 def test_get_items():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
-    lista_spesa.add_item("001")
-    lista_spesa.add_item("002")
+    lista_spesa.add_item("111111")
+    lista_spesa.add_item("222222")
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
     assert len(current_items) == 2
@@ -77,16 +77,16 @@ def test_erase_database():
 
 def test_get_item_quantity():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
-    lista_spesa.add_item("001")
-    lista_spesa.add_item("001")
-    current_quantity = lista_spesa.get_item_quantity("001")
+    lista_spesa.add_item("111111")
+    lista_spesa.add_item("111111")
+    current_quantity = lista_spesa.get_item_quantity("111111")
     os.remove(MOCK_PATH)
     assert current_quantity == 2
 
 
 def test_get_item_quantity_non_present():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
-    current_quantity = lista_spesa.get_item_quantity("001")
+    current_quantity = lista_spesa.get_item_quantity("111111")
     os.remove(MOCK_PATH)
     assert current_quantity == 0
     # FIXME se provo a fare get_item_quantity per un item che non c'è nel database mi ritorna None,
@@ -96,8 +96,8 @@ def test_get_item_quantity_non_present():
 
 def test_remove_one_item():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
-    lista_spesa.add_item("001")
-    lista_spesa.remove_one_item("001")
+    lista_spesa.add_item("111111")
+    lista_spesa.remove_one_item("111111")
     expected_items = []
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
@@ -106,10 +106,10 @@ def test_remove_one_item():
 
 def test_remove_one_item_with_multiple():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
-    lista_spesa.add_item("001")
-    lista_spesa.add_item("002")
-    lista_spesa.remove_one_item("001")
-    expected_items = [("002", "", 1)]
+    lista_spesa.add_item("111111")
+    lista_spesa.add_item("222222")
+    lista_spesa.remove_one_item("111111")
+    expected_items = [("222222", "test", 1)]
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
@@ -117,10 +117,10 @@ def test_remove_one_item_with_multiple():
 
 def test_remove_one_item_where_there_are_multiple():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
-    lista_spesa.add_item("001")
-    lista_spesa.add_item("001")
-    lista_spesa.remove_one_item("001")
-    expected_items = [("001", "", 1)]
+    lista_spesa.add_item("111111")
+    lista_spesa.add_item("111111")
+    lista_spesa.remove_one_item("111111")
+    expected_items = [("111111", "test", 1)]
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
@@ -128,7 +128,7 @@ def test_remove_one_item_where_there_are_multiple():
 
 def test_remove_one_item_non_present():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
-    lista_spesa.remove_one_item("001")
+    lista_spesa.remove_one_item("111111")
     expected_items = []
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
@@ -137,11 +137,11 @@ def test_remove_one_item_non_present():
 
 def test_remove_one_item_non_present_with_other_items():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
-    lista_spesa.add_item("002")
-    lista_spesa.add_item("002")
-    lista_spesa.add_item("003")
-    lista_spesa.remove_one_item("001")
-    expected_items = [("002", "", 2), ("003", "", 1)]
+    lista_spesa.add_item("222222")
+    lista_spesa.add_item("222222")
+    lista_spesa.add_item("333333")
+    lista_spesa.remove_one_item("111111")
+    expected_items = [("222222", "test", 2), ("333333", "test", 1)]
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
