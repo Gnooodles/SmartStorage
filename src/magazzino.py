@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from prodotti import Prodotti
 
 
 class Magazzino:
@@ -13,20 +14,14 @@ class Magazzino:
         path (str): The path to the SQLite database file.
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, prodotti: Prodotti) -> None:
         self.path = path
-        if not self._database_exists():
-            self.con = sqlite3.connect(self.path)
-            self.cur = self.con.cursor()
-            self.cur.execute(
-                "CREATE TABLE magazzino(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
-            )
-        else:
-            self.con = sqlite3.connect(self.path)
-            self.cur = self.con.cursor()
-
-    def _database_exists(self):
-        return os.path.isfile(self.path)
+        self.prodotti = prodotti
+        self.con = sqlite3.connect(self.path)
+        self.cur = self.con.cursor()
+        self.cur.execute(
+            "CREATE TABLE IF NOT EXISTS magazzino(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
+        )
 
     def add_item(self, barcode: str) -> None:
         """
@@ -38,8 +33,8 @@ class Magazzino:
         If the item with the given barcode doesn't exist in the database, a new entry is added.
         If the item already exists, its quantity is incremented by 1.
         """
-        # TODO Fetch the item's name based on the barcode.
-        name = ""  # get_name_from_barcode(barcode)
+        # Fetch the item's name based on the barcode.
+        name = self.prodotti.get_name_from_barcode(barcode)
 
         # Check if the item already exists in the database
         existing_item = self.cur.execute(
@@ -51,7 +46,7 @@ class Magazzino:
             self.cur.execute(f"INSERT INTO magazzino VALUES ('{barcode}', '{name}', 1)")
         else:
             # Increment the quantity of the existing item
-            quantity = self.get_item_quantity(barcode)
+            quantity = self._get_item_quantity(barcode)
             self.cur.execute(
                 f"UPDATE magazzino SET quantity = {quantity + 1} WHERE barcode = '{barcode}'"
             )
@@ -77,7 +72,7 @@ class Magazzino:
         """
         os.remove(self.path)
 
-    def get_item_quantity(self, barcode: str) -> int:
+    def _get_item_quantity(self, barcode: str) -> int:
         """
         Get the quantity of a specific item based on its barcode.
 
@@ -107,7 +102,7 @@ class Magazzino:
         ).fetchone()
 
         if existing_item is not None:
-            quantity = self.get_item_quantity(barcode)
+            quantity = self._get_item_quantity(barcode)
 
             if quantity == 1:
                 self.cur.execute(f"DELETE FROM magazzino WHERE barcode = '{barcode}'")
