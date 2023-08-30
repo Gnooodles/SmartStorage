@@ -29,7 +29,7 @@ class Prodotti:
         if item_name is None:
             # if the item's barcode is not finded in the database, search the barcode on the internet
             self.scrape_barcode_name(barcode)
-            #return ""
+            # return ""
 
         return item_name[0]
 
