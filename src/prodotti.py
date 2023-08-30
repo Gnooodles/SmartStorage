@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
+
 class Prodotti:
     def __init__(self, path: str) -> None:
         self.path = path
@@ -26,11 +27,11 @@ class Prodotti:
         ).fetchone()
 
         if item_name is None:
-            # if the item's barcode is not finded in the database, search the barcode on the internet 
+            # if the item's barcode is not finded in the database, search the barcode on the internet
             self.scrape_barcode_name(barcode)
 
         return item_name[0]
-    
+
     def scrape_barcode_name(self, barcode: str) -> str:
         """
         Scrapes the name associated with a barcode from a Google search result.
@@ -63,14 +64,15 @@ class Prodotti:
 
         if first_result is None:
             return ""
-        
-        result_name = first_result.text.split("\n")[0] # get the first line if it is a multiline
+
+        # get the first line if it is a multiline
+        result_name = first_result.text.split("\n")[0]
         self._update_product(barcode, result_name)
         return result_name
-    
+
     def _update_product(self, barcode: str, name: str):
-        # TODO implementare la funzione per aggiornare il database 
+        # TODO implementare la funzione per aggiornare il database
         # con il barcode e il nome trovato tramite lo scraper
-        #cur.execute(f"INSERT INTO prodotti VALUES ('{received_data}', '{name}')")
-        #con.commit()
+        # cur.execute(f"INSERT INTO prodotti VALUES ('{received_data}', '{name}')")
+        # con.commit()
         pass
