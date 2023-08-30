@@ -3,6 +3,7 @@ from src.prodotti import Prodotti
 import os
 
 
+
 MOCK_PATH = "tests/mock_lista_spesa.db"
 PRODOTTI = Prodotti("prodotti.db")
 

@@ -1,5 +1,5 @@
 import sqlite3
-from prodotti import Prodotti
+from src.prodotti import Prodotti
 import os
 
 
