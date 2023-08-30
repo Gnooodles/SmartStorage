@@ -89,7 +89,7 @@ class Magazzino:
         ).fetchone()
         if current_quantity is None:
             return 0
-            
+
         return current_quantity[0]
 
     def remove_one_item(self, barcode: str):

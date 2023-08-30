@@ -22,7 +22,6 @@ class ListaSpesa:
         self.cur.execute(
             "CREATE TABLE IF NOT EXISTS lista(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
         )
-        
 
     def add_item(self, barcode: str) -> None:
         """
@@ -91,7 +90,7 @@ class ListaSpesa:
 
         if current_quantity is None:
             return 0
-            
+
         return current_quantity[0]
 
     def remove_one_item(self, barcode: str):
