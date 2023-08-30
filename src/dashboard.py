@@ -8,33 +8,57 @@ magazzino = Magazzino("magazzino.db")
 
 st.title("Dashboard")
 
-st.button("Refresh")
+# bottoni allineati orizzontalmente
+col_button_1, col_button_2= st.columns([3,20])
+with col_button_1:
+    st.button('Refresh')
+with col_button_2:
+    st.button('Add missing groceries to shopping list')
 
-#df = pd.DataFrame(magazzino.get_items(), columns=['Code', 'Name', 'Quantity'])
+df = pd.DataFrame(magazzino.get_items(), columns=['Code', 'Name', 'Quantity'])
+df['Threshold']=4 # colonna provvisoria, TODO creare colonna nel database magazzino.db
 
-#st.dataframe(df, hide_index=True, use_container_width=True)
+# funzione per evidenziare la variable Quantity di una riga se minore della Threshold
+def highlight_threshold(row):
+    highlight = 'background-color: firebrick; color: white' # colori: orangered, firebrick
+    default = ''
+
+    if row['Quantity'] < row['Threshold']:
+        return [highlight, default]
+    else:
+        return [default, default]
+    
+
+# crea la tabella editabile dal dataframe con la funzione per l'evidenziamento
+st.data_editor(df.style.apply(highlight_threshold, subset=['Quantity', 'Threshold'], axis=1),
+             hide_index=True, 
+             use_container_width=True,
+             key="data_editor",
+             disabled=["Code", "Name", "Quantity"])
+# disabled: disabilito la modifica sulle colonne Code,Name,Quantity 
+
+#st.write("Here's the session state:")
+#st.write(st.session_state["data_editor"]["edited_rows"])
 
 
-items: list = magazzino.get_items()
+# prendo le modifiche effettuate tramite la tabella modificabile
+edited_changes = st.session_state["data_editor"]["edited_rows"]
+# prendo gli indici di riga corrispondenti
+rows_changed = edited_changes.keys()
+#print(list(rows_changed))
 
-cols = st.columns(5)
-fields = ['Code', 'Name', 'Quantity', 'Threshold', 'Button']
+# prendo i codici a barre corrispondenti agli indici di riga modificate
+codes_changed = []
+for r in rows_changed:
+    #codes.append(df.loc[[r],["Code"]].values[1])
+    codes_changed.append(df["Code"].values[r])
 
-for col, field in zip(cols, fields):
-    col.write(field)
+#print(codes_changed)
 
-for item in items:
-    col_code, col_name, col_quantity, col_threshold, col_button = st.columns(5)
-    col_code.write(item[0])
-    col_name.write(item[1])
-    col_quantity.write(f"{item[2]}")
-    col_threshold.write("0")
-    button_type = "Add to list"
-    button_phold = col_button.empty()  # create a placeholder
-    do_action = button_phold.button(button_type, key=item[0])
-    if do_action:
-        pass # do some action with a row's data
-        #button_phold.empty()  #  remove button
-
+# creo la query per aggiornare il database magazzino.db
+for row, code in zip(rows_changed, codes_changed):
+    threshold = edited_changes.get(row)['Threshold']
+    st.write(f"UPDATE magazzino SET threshold = {threshold} WHERE barcode = '{code}'")
+    # TODO implementare l'aggiornamento del database tramite questa query
 
 
