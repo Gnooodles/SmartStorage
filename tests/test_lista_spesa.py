@@ -100,7 +100,17 @@ def test_remove_one_item():
     expected_items = []
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
-    assert current_items == []
+    assert current_items == expected_items
+
+def test_remove_one_item_with_multiple():
+    lista_spesa = ListaSpesa(MOCK_PATH)
+    lista_spesa.add_item("001")
+    lista_spesa.add_item("002")
+    lista_spesa.remove_one_item("001")
+    expected_items = [("002", "", 1)]
+    current_items = lista_spesa.get_items()
+    os.remove(MOCK_PATH)
+    assert current_items == expected_items
 
 
 def test_remove_one_item_where_there_are_multiple():
