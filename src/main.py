@@ -1,7 +1,8 @@
-from lettura_seriale import *
-from magazzino import Magazzino
-from prodotti import Prodotti
-from lista_spesa import ListaSpesa
+from smart_storage.lettura_seriale import *
+from smart_storage.magazzino import Magazzino
+from smart_storage.prodotti import Prodotti
+from smart_storage.lista_spesa import ListaSpesa
+import time
 
 # Create an instance of the Magazzino class, initializing the storage system
 prodotti = Prodotti("prodotti.db")
@@ -15,7 +16,6 @@ while True:
     # Continuously monitor and process data from serial input
     start_scan()
     received_data = recieve_data()
-
     if received_data == "CARICA":
         status = "CARICA"
     elif received_data == "SCARICA":
@@ -36,3 +36,5 @@ while True:
             pass
     else:
         pass
+
+    time.sleep(0.3)

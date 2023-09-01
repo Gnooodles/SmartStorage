@@ -1,6 +1,6 @@
 import streamlit as st
-from magazzino import Magazzino
-from prodotti import Prodotti
+from smart_storage.magazzino import Magazzino
+from smart_storage.prodotti import Prodotti
 import pandas as pd
 
 st.set_page_config(page_title="Dashboard Smart Storage", layout="wide")
@@ -9,6 +9,7 @@ magazzino = Magazzino("magazzino.db", prodotti)
 # st.write(magazzino.get_items())
 
 st.title("Dashboard")
+st.sidebar.success("Select a demo above.")
 
 # bottoni allineati orizzontalmente
 col_button_1, col_button_2 = st.columns([3, 20])

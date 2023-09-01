@@ -1,5 +1,5 @@
 import sqlite3
-from src.prodotti import Prodotti
+from smart_storage.prodotti import Prodotti
 import os
 
 
@@ -72,7 +72,9 @@ class ListaSpesa:
 
         Caution: This operation is irreversible and will result in permanent data loss.
         """
-        os.remove(self.path)
+        # os.remove(self.path)
+        self.cur.execute("DELETE FROM lista")
+        self.con.commit()
 
     def get_item_quantity(self, barcode: str) -> int:
         """

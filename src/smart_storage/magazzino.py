@@ -1,6 +1,6 @@
 import sqlite3
 import os
-from prodotti import Prodotti
+from smart_storage.prodotti import Prodotti
 
 
 class Magazzino:
