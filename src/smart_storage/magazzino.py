@@ -1,9 +1,9 @@
 import sqlite3
-from prodotti import Prodotti
 import os
+from smart_storage.prodotti import Prodotti
 
 
-class ListaSpesa:
+class Magazzino:
     """
     A class representing a storage system.
 
@@ -20,7 +20,7 @@ class ListaSpesa:
         self.con = sqlite3.connect(self.path)
         self.cur = self.con.cursor()
         self.cur.execute(
-            "CREATE TABLE IF NOT EXISTS lista(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
+            "CREATE TABLE IF NOT EXISTS magazzino(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
         )
 
     def add_item(self, barcode: str) -> None:
@@ -35,22 +35,22 @@ class ListaSpesa:
         """
         if barcode == "":
             return
-
+        # Fetch the item's name based on the barcode.
         name = self.prodotti.get_name_from_barcode(barcode)
 
         # Check if the item already exists in the database
         existing_item = self.cur.execute(
-            f"SELECT * FROM lista WHERE barcode = '{barcode}'"
+            f"SELECT * FROM magazzino WHERE barcode = '{barcode}'"
         ).fetchone()
 
         if existing_item is None:
             # Insert a new item into the database with initial quantity of 1
-            self.cur.execute(f"INSERT INTO lista VALUES ('{barcode}', '{name}', 1)")
+            self.cur.execute(f"INSERT INTO magazzino VALUES ('{barcode}', '{name}', 1)")
         else:
             # Increment the quantity of the existing item
             quantity = self.get_item_quantity(barcode)
             self.cur.execute(
-                f"UPDATE lista SET quantity = {quantity + 1} WHERE barcode = '{barcode}'"
+                f"UPDATE magazzino SET quantity = {quantity + 1} WHERE barcode = '{barcode}'"
             )
 
         # Commit the changes to the database
@@ -63,7 +63,7 @@ class ListaSpesa:
         Returns:
             list: A list of tuples representing items in the format (barcode, name, quantity).
         """
-        res = self.cur.execute("SELECT * FROM lista")
+        res = self.cur.execute("SELECT * FROM magazzino")
         return res.fetchall()
 
     def erase_database(self):
@@ -72,7 +72,8 @@ class ListaSpesa:
 
         Caution: This operation is irreversible and will result in permanent data loss.
         """
-        os.remove(self.path)
+        self.cur.execute("DELETE FROM magazzino")
+        self.con.commit()
 
     def get_item_quantity(self, barcode: str) -> int:
         """
@@ -85,9 +86,8 @@ class ListaSpesa:
             int: The quantity of the item.
         """
         current_quantity = self.cur.execute(
-            f"SELECT quantity FROM lista WHERE barcode = '{barcode}'"
+            f"SELECT quantity FROM magazzino WHERE barcode = '{barcode}'"
         ).fetchone()
-
         if current_quantity is None:
             return 0
 
@@ -104,17 +104,17 @@ class ListaSpesa:
         If the item's quantity is 1, the item is completely removed from the database.
         """
         existing_item = self.cur.execute(
-            f"SELECT * FROM lista WHERE barcode = '{barcode}'"
+            f"SELECT * FROM magazzino WHERE barcode = '{barcode}'"
         ).fetchone()
 
         if existing_item is not None:
             quantity = self.get_item_quantity(barcode)
 
             if quantity == 1:
-                self.cur.execute(f"DELETE FROM lista WHERE barcode = '{barcode}'")
+                self.cur.execute(f"DELETE FROM magazzino WHERE barcode = '{barcode}'")
             else:
                 self.cur.execute(
-                    f"UPDATE lista SET quantity = {quantity - 1} WHERE barcode = '{barcode}'"
+                    f"UPDATE magazzino SET quantity = {quantity - 1} WHERE barcode = '{barcode}'"
                 )
 
             # Commit the changes to the database
