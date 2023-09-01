@@ -1,9 +1,9 @@
-from src.lista_spesa import ListaSpesa
-from src.prodotti import Prodotti
+from smart_storage.lista_spesa import ListaSpesa
+from smart_storage.prodotti import Prodotti
 import os
 
 
-MOCK_PATH = "tests/mock_lista_spesa.db"
+MOCK_PATH = "src/tests/mock_lista_spesa.db"
 PRODOTTI = Prodotti("prodotti.db")
 
 
@@ -70,8 +70,9 @@ def test_get_items_non_present():
 
 def test_erase_database():
     lista_spesa = ListaSpesa(MOCK_PATH, PRODOTTI)
+    lista_spesa.add_item("111111")
     lista_spesa.erase_database()
-    assert not os.path.isfile(MOCK_PATH)
+    assert lista_spesa.get_items() == []
 
 
 def test_get_item_quantity():

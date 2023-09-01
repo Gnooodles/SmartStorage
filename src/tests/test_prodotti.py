@@ -1,4 +1,4 @@
-from src.prodotti import Prodotti
+from smart_storage.prodotti import Prodotti
 
 
 def test_search_barcode_in_database():
