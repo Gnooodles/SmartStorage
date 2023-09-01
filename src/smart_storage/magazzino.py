@@ -72,7 +72,8 @@ class Magazzino:
 
         Caution: This operation is irreversible and will result in permanent data loss.
         """
-        os.remove(self.path)
+        self.cur.execute("DELETE FROM magazzino")
+        self.con.commit()
 
     def get_item_quantity(self, barcode: str) -> int:
         """

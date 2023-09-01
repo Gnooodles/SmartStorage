@@ -72,7 +72,6 @@ class ListaSpesa:
 
         Caution: This operation is irreversible and will result in permanent data loss.
         """
-        # os.remove(self.path)
         self.cur.execute("DELETE FROM lista")
         self.con.commit()
 
