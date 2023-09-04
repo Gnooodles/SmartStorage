@@ -58,38 +58,25 @@ def highlight_threshold(row):
 
 
 # Create an editable table from the DataFrame with row highlighting
-st.data_editor(
+edited_data = st.data_editor(
     df,  # .style.apply(highlight_threshold, subset=["Quantity", "Threshold"], axis=1),
     hide_index=True,
     use_container_width=True,
     key="data_editor",
+    disabled=['Code']
 )
 # Disabled: Disable editing on the 'Code', 'Name', and 'Quantity' columns
 
 
-# Function to get modified item data from the editable table
-def get_modified_item(column: str):
-    """
-    Get modified item data from the editable table.
 
-    Args:
-        column (str): The column name to retrieve modified data from.
+if st.button("Salva modifiche"):
+    for i, row in edited_data.iterrows():
+        # sta query l'ho fatta partire usando direttamente il cursore di magazzino, 
+        # non è pulito ma non avevo voglia di cambiare il magazzino
+        magazzino.cur.execute(f"""UPDATE magazzino 
+                SET barcode = '{row['Code']}', name = '{row['Name']}', quantity = {row['Quantity']}, threshold = {row['Threshold']}
+                WHERE barcode = '{row['Code']}'
+        """)
+        magazzino.con.commit()
 
-    This function retrieves the changes made in the editable table and
-    returns information about the modified rows and columns.
-    """
-    edited_changes = st.session_state["data_editor"]["edited_rows"]
-    rows_changed = edited_changes.keys()
-    codes_changed = []
-    for r in rows_changed:
-        codes_changed.append(df[column].values[r])
-    return rows_changed, codes_changed, edited_changes
-
-
-# Update the threshold in the 'magazzino.db' database
-rows_changed, codes_changed, edited_changes = get_modified_item("Code")
-for row, barcode in zip(rows_changed, codes_changed):
-    threshold = edited_changes.get(row)["Threshold"]
-    magazzino.update_threshold(barcode, threshold)
-
-# FIXME: Error in dashboard when changing the threshold
+    st.success("Modifiche salvate con successo!")
