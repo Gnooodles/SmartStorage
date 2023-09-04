@@ -45,7 +45,9 @@ class ListaSpesa:
 
         if existing_item is None:
             # Insert a new item into the database with initial quantity of 1
-            self.cur.execute(f"INSERT INTO lista VALUES ('{barcode}', '{name}', {quantity})")
+            self.cur.execute(
+                f"INSERT INTO lista VALUES ('{barcode}', '{name}', {quantity})"
+            )
         else:
             # Increment the quantity of the existing item
             old_quantity = self.get_item_quantity(barcode)

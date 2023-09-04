@@ -44,7 +44,9 @@ class Magazzino:
 
         if existing_item is None:
             # Insert a new item into the database with initial quantity of 1
-            self.cur.execute(f"INSERT INTO magazzino VALUES ('{barcode}', '{name}', 1, 0)")
+            self.cur.execute(
+                f"INSERT INTO magazzino VALUES ('{barcode}', '{name}', 1, 0)"
+            )
         else:
             # Increment the quantity of the existing item
             quantity = self.get_item_quantity(barcode)
@@ -120,23 +122,36 @@ class Magazzino:
             self.con.commit()
 
     def update_threshold(self, barcode: str, new_threshold: int):
-        self.cur.execute(f"UPDATE magazzino SET threshold = {new_threshold} WHERE barcode = '{barcode}'")
+        """
+        Update the threshold quantity for a product in the warehouse.
+
+        Args:
+            barcode (str): The barcode of the product to update.
+            new_threshold (int): The new threshold quantity for the product.
+        """
+        self.cur.execute(
+            f"UPDATE magazzino SET threshold = {new_threshold} WHERE barcode = '{barcode}'"
+        )
         self.con.commit()
 
-
     def get_missing_product_quantity(self) -> list[dict]:
-        missing_list = self.cur.execute('''SELECT barcode, quantity, threshold
-                                        FROM magazzino
-                                        WHERE quantity < threshold
-                                        ''').fetchall()
+        """
+        Retrieve a list of products with quantities below their respective thresholds.
+
+        Returns:
+            list[dict]: A list of dictionaries containing information about missing products.
+                Each dictionary has the keys 'barcode' and 'difference', representing the
+                product's barcode and the difference between its threshold and current quantity.
+        """
+        missing_list = self.cur.execute(
+            """SELECT barcode, quantity, threshold
+                FROM magazzino
+                WHERE quantity < threshold
+            """
+        ).fetchall()
         difference = []
 
         for miss in missing_list:
-            difference.append(
-                {
-                    "barcode": miss[0],
-                    "difference": miss[2]-miss[1]
-                }
-            )
-        
+            difference.append({"barcode": miss[0], "difference": miss[2] - miss[1]})
+
         return difference
