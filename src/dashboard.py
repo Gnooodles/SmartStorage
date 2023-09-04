@@ -3,6 +3,7 @@ from smart_storage.magazzino import Magazzino
 from smart_storage.prodotti import Prodotti
 from smart_storage.lista_spesa import ListaSpesa
 import pandas as pd
+import time
 
 # Set Streamlit page configuration
 st.set_page_config(page_title="Dashboard Smart Storage", layout="wide")
@@ -80,3 +81,5 @@ if st.button("Salva modifiche"):
         magazzino.con.commit()
 
     st.success("Modifiche salvate con successo!")
+    time.sleep(0.5)
+    st.experimental_rerun()
