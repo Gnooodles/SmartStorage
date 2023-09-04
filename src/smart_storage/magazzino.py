@@ -1,5 +1,4 @@
 import sqlite3
-import os
 from smart_storage.prodotti import Prodotti
 
 
@@ -20,7 +19,7 @@ class Magazzino:
         self.con = sqlite3.connect(self.path)
         self.cur = self.con.cursor()
         self.cur.execute(
-            "CREATE TABLE IF NOT EXISTS magazzino(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
+            "CREATE TABLE IF NOT EXISTS magazzino(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER, threshold INTEGER)"
         )
 
     def add_item(self, barcode: str) -> None:
@@ -45,7 +44,7 @@ class Magazzino:
 
         if existing_item is None:
             # Insert a new item into the database with initial quantity of 1
-            self.cur.execute(f"INSERT INTO magazzino VALUES ('{barcode}', '{name}', 1)")
+            self.cur.execute(f"INSERT INTO magazzino VALUES ('{barcode}', '{name}', 1, 0)")
         else:
             # Increment the quantity of the existing item
             quantity = self.get_item_quantity(barcode)
@@ -119,3 +118,25 @@ class Magazzino:
 
             # Commit the changes to the database
             self.con.commit()
+
+    def update_threshold(self, barcode: str, new_threshold: int):
+        self.cur.execute(f"UPDATE magazzino SET threshold = {new_threshold} WHERE barcode = '{barcode}'")
+        self.con.commit()
+
+
+    def get_missing_product_quantity(self) -> list[dict]:
+        missing_list = self.cur.execute('''SELECT barcode, quantity, threshold
+                                        FROM magazzino
+                                        WHERE quantity < threshold
+                                        ''').fetchall()
+        difference = []
+
+        for miss in missing_list:
+            difference.append(
+                {
+                    "barcode": miss[0],
+                    "difference": miss[2]-miss[1]
+                }
+            )
+        
+        return difference

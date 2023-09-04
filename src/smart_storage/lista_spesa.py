@@ -23,7 +23,7 @@ class ListaSpesa:
             "CREATE TABLE IF NOT EXISTS lista(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
         )
 
-    def add_item(self, barcode: str) -> None:
+    def add_item(self, barcode: str, quantity: int = 1) -> None:
         """
         Add an item to the database or update its quantity if it already exists.
 
@@ -45,12 +45,12 @@ class ListaSpesa:
 
         if existing_item is None:
             # Insert a new item into the database with initial quantity of 1
-            self.cur.execute(f"INSERT INTO lista VALUES ('{barcode}', '{name}', 1)")
+            self.cur.execute(f"INSERT INTO lista VALUES ('{barcode}', '{name}', {quantity})")
         else:
             # Increment the quantity of the existing item
-            quantity = self.get_item_quantity(barcode)
+            old_quantity = self.get_item_quantity(barcode)
             self.cur.execute(
-                f"UPDATE lista SET quantity = {quantity + 1} WHERE barcode = '{barcode}'"
+                f"UPDATE lista SET quantity = {old_quantity + quantity} WHERE barcode = '{barcode}'"
             )
 
         # Commit the changes to the database

@@ -2,11 +2,9 @@ import streamlit as st
 from smart_storage.lista_spesa import ListaSpesa
 from smart_storage.prodotti import Prodotti
 
-st.set_page_config(page_title="Smart Storage")
+st.set_page_config(page_title="Smart Storage", layout="wide")
 st.title("Shopping list")
 prodotti = Prodotti("prodotti.db")
-
-st.sidebar.header("Shopping list")
 
 
 # fetch database
