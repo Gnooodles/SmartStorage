@@ -2,6 +2,7 @@ import sqlite3
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+import time
 
 
 class Prodotti:
@@ -28,8 +29,8 @@ class Prodotti:
 
         if item_name is None:
             # if the item's barcode is not finded in the database, search the barcode on the internet
-            # self.scrape_barcode_name(barcode)
-            return ""
+            return self.scrape_barcode_name(barcode)
+            # return ""
 
         return item_name[0]
 
@@ -46,7 +47,8 @@ class Prodotti:
         """
         # setup driver and options
         options = Options()
-        options.headless = True
+        options.add_argument("--headless")
+        # options.add_argument('--disable-blink-features=AutomationControlled')
         driver = webdriver.Chrome(options=options)
 
         # get the google search url for the barcode
@@ -61,7 +63,8 @@ class Prodotti:
         # find and return the first result, if None return an empty string
         # first_result = driver.find_element(By.CSS_SELECTOR, ".tF2Cxc") # another way to get the first result
         first_result = driver.find_element(By.CSS_SELECTOR, "h3.LC20lb")
-        driver.quit()
+
+        # driver.quit() creava problemi boh non voglio sapere pare che funzioni
 
         if first_result is None:
             return ""

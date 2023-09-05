@@ -64,20 +64,21 @@ edited_data = st.data_editor(
     hide_index=True,
     use_container_width=True,
     key="data_editor",
-    disabled=['Code']
+    disabled=["Code"],
 )
 # Disabled: Disable editing on the 'Code', 'Name', and 'Quantity' columns
 
 
-
 if st.button("Salva modifiche"):
     for i, row in edited_data.iterrows():
-        # sta query l'ho fatta partire usando direttamente il cursore di magazzino, 
+        # sta query l'ho fatta partire usando direttamente il cursore di magazzino,
         # non è pulito ma non avevo voglia di cambiare il magazzino
-        magazzino.cur.execute(f"""UPDATE magazzino 
+        magazzino.cur.execute(
+            f"""UPDATE magazzino 
                 SET barcode = '{row['Code']}', name = '{row['Name']}', quantity = {row['Quantity']}, threshold = {row['Threshold']}
                 WHERE barcode = '{row['Code']}'
-        """)
+        """
+        )
         magazzino.con.commit()
 
     st.success("Modifiche salvate con successo!")
