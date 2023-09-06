@@ -134,6 +134,16 @@ class Magazzino:
         )
         self.con.commit()
 
+    def get_missing_product_number(self, barcode: str) -> int:
+        threshold = self.cur.execute(f"SELECT threshold FROM magazzino WHERE barcode = '{barcode}'").fetchone()[0]
+        quantity = self.get_item_quantity(barcode)
+        difference = threshold-quantity
+        if difference <= 0:
+            return 0
+        else:
+            return difference
+    
+
     def get_missing_product_quantity(self) -> list[dict]:
         """
         Retrieve a list of products with quantities below their respective thresholds.

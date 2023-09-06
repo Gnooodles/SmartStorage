@@ -7,7 +7,7 @@ import time
 # Create an instance of the Magazzino class, initializing the storage system
 prodotti = Prodotti("prodotti.db")
 magazzino = Magazzino("magazzino.db", prodotti)
-lista_spesa = ListaSpesa("listaspesa.db", prodotti)
+lista_spesa = ListaSpesa("listaspesa.db", prodotti, magazzino)
 
 # Initialize the status variable to track the current operation mode
 status = ""

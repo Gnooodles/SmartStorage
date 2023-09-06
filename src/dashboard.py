@@ -11,7 +11,7 @@ st.set_page_config(page_title="Dashboard Smart Storage", layout="wide")
 # Create instances of the storage classes
 prodotti = Prodotti("prodotti.db")
 magazzino = Magazzino("magazzino.db", prodotti)
-lista_spesa = ListaSpesa("listaspesa.db", prodotti)
+lista_spesa = ListaSpesa("listaspesa.db", prodotti, magazzino)
 
 st.title("Dashboard")
 
@@ -23,11 +23,7 @@ def add_missing_to_list():
     """
     missing_products = magazzino.get_missing_product_quantity()
     for missing in missing_products:
-        already_in_list = lista_spesa.get_item_quantity(missing["barcode"])
-        print(already_in_list)
-        lista_spesa.remove_one_item(missing['barcode'])
-        new_quantity = already_in_list + missing['difference']
-        lista_spesa.add_item(missing["barcode"], quantity=new_quantity)
+        lista_spesa.update_threshold(missing['barcode'], missing['difference'])
 
 
 # Create horizontal buttons

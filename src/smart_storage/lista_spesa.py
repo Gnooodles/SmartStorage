@@ -1,5 +1,6 @@
 import sqlite3
 from smart_storage.prodotti import Prodotti
+from smart_storage.magazzino import Magazzino
 import os
 
 
@@ -14,13 +15,14 @@ class ListaSpesa:
         path (str): The path to the SQLite database file.
     """
 
-    def __init__(self, path: str, prodotti: Prodotti) -> None:
+    def __init__(self, path: str, prodotti: Prodotti, magazzino: Magazzino) -> None:
         self.path = path
         self.prodotti = prodotti
+        self.magazzino = magazzino
         self.con = sqlite3.connect(self.path)
         self.cur = self.con.cursor()
         self.cur.execute(
-            "CREATE TABLE IF NOT EXISTS lista(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
+            "CREATE TABLE IF NOT EXISTS lista(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER, threshold INTEGER)"
         )
 
     def add_item(self, barcode: str, quantity: int = 1) -> None:
@@ -45,8 +47,9 @@ class ListaSpesa:
 
         if existing_item is None:
             # Insert a new item into the database with initial quantity of 1
+            current_threshold = self.magazzino.get_missing_product_number(barcode)
             self.cur.execute(
-                f"INSERT INTO lista VALUES ('{barcode}', '{name}', {quantity})"
+                f"INSERT INTO lista VALUES ('{barcode}', '{name}', {quantity}, {current_threshold})"
             )
         else:
             # Increment the quantity of the existing item
@@ -57,6 +60,11 @@ class ListaSpesa:
 
         # Commit the changes to the database
         self.con.commit()
+
+    def update_threshold(self, barcode: str, threshold: int):
+        self.cur.execute(
+                f"UPDATE lista SET threshold = {threshold} WHERE barcode = '{barcode}'"
+            )
 
     def get_items(self):
         """
