@@ -64,13 +64,15 @@ class Prodotti:
         # first_result = driver.find_element(By.CSS_SELECTOR, ".tF2Cxc") # another way to get the first result
         first_result = driver.find_element(By.CSS_SELECTOR, "h3.LC20lb")
 
-        # driver.quit() 
+        # driver.quit()
 
         if first_result is None:
             return ""
 
         # get the first line if it is a multiline
-        result_name = first_result.text.split("\n")[0].strip().replace("\'", "").replace("\"", "")
+        result_name = (
+            first_result.text.split("\n")[0].strip().replace("'", "").replace('"', "")
+        )
         self._update_product(barcode, result_name)
         return result_name
 
@@ -78,7 +80,6 @@ class Prodotti:
         # Funzione per aggiornare il database con il barcode e il nome trovato tramite lo scraper
         self.cur.execute(f"INSERT INTO prodotti VALUES ('{barcode}', '{name}')")
         self.con.commit()
-
 
 
 if __name__ == "__main__":

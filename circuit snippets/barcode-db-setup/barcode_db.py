@@ -6,13 +6,11 @@ con = sqlite3.connect("prodotti.db")
 cur = con.cursor()
 
 # Create a table named "prodotti" with specified columns
-cur.execute(
-    "CREATE TABLE IF NOT EXISTS prodotti(code TEXT, name TEXT)"
-)
+cur.execute("CREATE TABLE IF NOT EXISTS prodotti(code TEXT, name TEXT)")
 
 # Load data from a CSV file named "dati_ita_filtered.csv" using pandas
 data = pd.read_csv("dati_ita_filtered.csv")
-data = data[["code","name"]]
+data = data[["code", "name"]]
 
 # Convert the 'code' column to string type (uncomment the line below)
 data["code"] = data["code"].astype(str).str.split(".").str[0]

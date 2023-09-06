@@ -25,8 +25,8 @@ def add_missing_to_list():
     for missing in missing_products:
         already_in_list = lista_spesa.get_item_quantity(missing["barcode"])
         print(already_in_list)
-        lista_spesa.remove_one_item(missing['barcode'])
-        new_quantity = already_in_list + missing['difference']
+        lista_spesa.remove_one_item(missing["barcode"])
+        new_quantity = already_in_list + missing["difference"]
         lista_spesa.add_item(missing["barcode"], quantity=new_quantity)
 
 
