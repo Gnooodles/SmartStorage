@@ -96,7 +96,7 @@ class ListaSpesa:
 
         return current_quantity[0]
 
-    def remove_one_item(self, barcode: str):
+    def remove_one_item(self, barcode: str, quantity: int = 1):
         """
         Remove one quantity of the specified item from the database.
 
@@ -111,13 +111,13 @@ class ListaSpesa:
         ).fetchone()
 
         if existing_item is not None:
-            quantity = self.get_item_quantity(barcode)
+            old_quantity = self.get_item_quantity(barcode)
 
-            if quantity == 1:
+            if old_quantity == 1:
                 self.cur.execute(f"DELETE FROM lista WHERE barcode = '{barcode}'")
             else:
                 self.cur.execute(
-                    f"UPDATE lista SET quantity = {quantity - 1} WHERE barcode = '{barcode}'"
+                    f"UPDATE lista SET quantity = {old_quantity - quantity} WHERE barcode = '{barcode}'"
                 )
 
             # Commit the changes to the database

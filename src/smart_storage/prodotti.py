@@ -70,7 +70,7 @@ class Prodotti:
             return ""
 
         # get the first line if it is a multiline
-        result_name = first_result.text.split("\n")[0]
+        result_name = first_result.text.split("\n")[0].strip().replace("\'", "").replace("\"", "")
         self._update_product(barcode, result_name)
         return result_name
 
@@ -81,4 +81,7 @@ class Prodotti:
 
 
 
-
+if __name__ == "__main__":
+    prodotti = Prodotti("prodotti.db")
+    name = prodotti.scrape_barcode_name("8076800000139")
+    print(name)
