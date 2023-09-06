@@ -3,6 +3,7 @@ from smart_storage.magazzino import Magazzino
 from smart_storage.prodotti import Prodotti
 from smart_storage.lista_spesa import ListaSpesa
 import pandas as pd
+import time
 
 # Set Streamlit page configuration
 st.set_page_config(page_title="Dashboard Smart Storage", layout="wide")
@@ -24,15 +25,15 @@ def add_missing_to_list():
     for missing in missing_products:
         already_in_list = lista_spesa.get_item_quantity(missing["barcode"])
         print(already_in_list)
-        if already_in_list < missing["difference"]:
-            lista_spesa.add_item(missing["barcode"], quantity=missing["difference"])
+        lista_spesa.remove_one_item(missing['barcode'])
+        new_quantity = already_in_list + missing['difference']
+        lista_spesa.add_item(missing["barcode"], quantity=new_quantity)
 
 
 # Create horizontal buttons
 col_button_1, col_button_2 = st.columns([3, 20])
 with col_button_1:
     st.button("Refresh")
-    # TODO: Implement a button to refresh data
 
 with col_button_2:
     if st.button("Add missing groceries to shopping list"):
@@ -58,38 +59,28 @@ def highlight_threshold(row):
 
 
 # Create an editable table from the DataFrame with row highlighting
-st.data_editor(
+edited_data = st.data_editor(
     df,  # .style.apply(highlight_threshold, subset=["Quantity", "Threshold"], axis=1),
     hide_index=True,
     use_container_width=True,
     key="data_editor",
+    disabled=["Code"],
 )
 # Disabled: Disable editing on the 'Code', 'Name', and 'Quantity' columns
 
 
-# Function to get modified item data from the editable table
-def get_modified_item(column: str):
-    """
-    Get modified item data from the editable table.
+if st.button("Salva modifiche"):
+    for i, row in edited_data.iterrows():
+        # sta query l'ho fatta partire usando direttamente il cursore di magazzino,
+        # non è pulito ma non avevo voglia di cambiare il magazzino
+        magazzino.cur.execute(
+            f"""UPDATE magazzino 
+                SET barcode = '{row['Code']}', name = '{row['Name']}', quantity = {row['Quantity']}, threshold = {row['Threshold']}
+                WHERE barcode = '{row['Code']}'
+        """
+        )
+        magazzino.con.commit()
 
-    Args:
-        column (str): The column name to retrieve modified data from.
-
-    This function retrieves the changes made in the editable table and
-    returns information about the modified rows and columns.
-    """
-    edited_changes = st.session_state["data_editor"]["edited_rows"]
-    rows_changed = edited_changes.keys()
-    codes_changed = []
-    for r in rows_changed:
-        codes_changed.append(df[column].values[r])
-    return rows_changed, codes_changed, edited_changes
-
-
-# Update the threshold in the 'magazzino.db' database
-rows_changed, codes_changed, edited_changes = get_modified_item("Code")
-for row, barcode in zip(rows_changed, codes_changed):
-    threshold = edited_changes.get(row)["Threshold"]
-    magazzino.update_threshold(barcode, threshold)
-
-# FIXME: Error in dashboard when changing the threshold
+    st.success("Modifiche salvate con successo!")
+    time.sleep(0.5)
+    st.experimental_rerun()

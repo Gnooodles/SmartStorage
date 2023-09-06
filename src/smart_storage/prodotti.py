@@ -2,6 +2,7 @@ import sqlite3
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+import time
 
 
 class Prodotti:
@@ -23,13 +24,13 @@ class Prodotti:
 
         # Retrieve the name of the item from the database using the provided barcode
         item_name = self.cur.execute(
-            f"SELECT product_name FROM prodotti WHERE code = '{barcode}'"
+            f"SELECT name FROM prodotti WHERE code = '{barcode}'"
         ).fetchone()
 
         if item_name is None:
             # if the item's barcode is not finded in the database, search the barcode on the internet
-            # self.scrape_barcode_name(barcode)
-            return ""
+            return self.scrape_barcode_name(barcode)
+            # return ""
 
         return item_name[0]
 
@@ -46,7 +47,8 @@ class Prodotti:
         """
         # setup driver and options
         options = Options()
-        options.headless = True
+        options.add_argument("--headless")
+        # options.add_argument('--disable-blink-features=AutomationControlled')
         driver = webdriver.Chrome(options=options)
 
         # get the google search url for the barcode
@@ -61,19 +63,25 @@ class Prodotti:
         # find and return the first result, if None return an empty string
         # first_result = driver.find_element(By.CSS_SELECTOR, ".tF2Cxc") # another way to get the first result
         first_result = driver.find_element(By.CSS_SELECTOR, "h3.LC20lb")
-        driver.quit()
+
+        # driver.quit() 
 
         if first_result is None:
             return ""
 
         # get the first line if it is a multiline
-        result_name = first_result.text.split("\n")[0]
+        result_name = first_result.text.split("\n")[0].strip().replace("\'", "").replace("\"", "")
         self._update_product(barcode, result_name)
         return result_name
 
     def _update_product(self, barcode: str, name: str):
-        # TODO implementare la funzione per aggiornare il database
-        # con il barcode e il nome trovato tramite lo scraper
-        # cur.execute(f"INSERT INTO prodotti VALUES ('{received_data}', '{name}')")
-        # con.commit()
-        pass
+        # Funzione per aggiornare il database con il barcode e il nome trovato tramite lo scraper
+        self.cur.execute(f"INSERT INTO prodotti VALUES ('{barcode}', '{name}')")
+        self.con.commit()
+
+
+
+if __name__ == "__main__":
+    prodotti = Prodotti("prodotti.db")
+    name = prodotti.scrape_barcode_name("8076800000139")
+    print(name)
