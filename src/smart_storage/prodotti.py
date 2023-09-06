@@ -24,7 +24,7 @@ class Prodotti:
 
         # Retrieve the name of the item from the database using the provided barcode
         item_name = self.cur.execute(
-            f"SELECT product_name FROM prodotti WHERE code = '{barcode}'"
+            f"SELECT name FROM prodotti WHERE code = '{barcode}'"
         ).fetchone()
 
         if item_name is None:
@@ -64,7 +64,7 @@ class Prodotti:
         # first_result = driver.find_element(By.CSS_SELECTOR, ".tF2Cxc") # another way to get the first result
         first_result = driver.find_element(By.CSS_SELECTOR, "h3.LC20lb")
 
-        # driver.quit() creava problemi boh non voglio sapere pare che funzioni
+        # driver.quit() 
 
         if first_result is None:
             return ""
@@ -75,8 +75,10 @@ class Prodotti:
         return result_name
 
     def _update_product(self, barcode: str, name: str):
-        # TODO implementare la funzione per aggiornare il database
-        # con il barcode e il nome trovato tramite lo scraper
-        # cur.execute(f"INSERT INTO prodotti VALUES ('{received_data}', '{name}')")
-        # con.commit()
-        pass
+        # Funzione per aggiornare il database con il barcode e il nome trovato tramite lo scraper
+        self.cur.execute(f"INSERT INTO prodotti VALUES ('{barcode}', '{name}')")
+        self.con.commit()
+
+
+
+

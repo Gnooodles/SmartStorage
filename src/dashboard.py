@@ -33,7 +33,6 @@ def add_missing_to_list():
 col_button_1, col_button_2 = st.columns([3, 20])
 with col_button_1:
     st.button("Refresh")
-    # TODO: Implement a button to refresh data
 
 with col_button_2:
     if st.button("Add missing groceries to shopping list"):

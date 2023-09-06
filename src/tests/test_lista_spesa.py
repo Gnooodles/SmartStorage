@@ -89,9 +89,6 @@ def test_get_item_quantity_non_present():
     current_quantity = lista_spesa.get_item_quantity("111111")
     os.remove(MOCK_PATH)
     assert current_quantity == 0
-    # FIXME se provo a fare get_item_quantity per un item che non c'è nel database mi ritorna None,
-    # dato che la funzione dovrebbe ritornare un intero è opportuno gestire
-    # il caso in cui l'item non esista ritornando 0
 
 
 def test_remove_one_item():
