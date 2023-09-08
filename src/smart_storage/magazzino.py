@@ -1,6 +1,6 @@
 import sqlite3
 from smart_storage.interfaces import ProductFinderInterface
-from smart_storage.item import StorageItem
+from smart_storage.item import StorageItem, MissingItem
 
 
 class Magazzino:
@@ -38,25 +38,17 @@ class Magazzino:
         # Fetch the item's name based on the barcode.
         name = self.prodotti.get_name_from_barcode(barcode)
 
-        # Check if the item already exists in the database
-        existing_item = self.cur.execute(
-            f"SELECT * FROM magazzino WHERE barcode = '{barcode}'"
-        ).fetchone()
-
-        if existing_item is None:
-            # Insert a new item into the database with initial quantity of 1
+        with self.con:
+            # Use a parameterized query to avoid SQL injection
             self.cur.execute(
-                f"INSERT INTO magazzino VALUES ('{barcode}', '{name}', 1, 0)"
+                """
+                INSERT INTO magazzino (barcode, name, quantity, threshold)
+                VALUES (?, ?, 1, 0)
+                ON CONFLICT(barcode) DO UPDATE
+                SET quantity = quantity + 1;
+                """,
+                (barcode, name),
             )
-        else:
-            # Increment the quantity of the existing item
-            quantity = self.get_item_quantity(barcode)
-            self.cur.execute(
-                f"UPDATE magazzino SET quantity = {quantity + 1} WHERE barcode = '{barcode}'"
-            )
-
-        # Commit the changes to the database
-        self.con.commit()
 
     def get_items(self) -> list[StorageItem]:
         """
@@ -68,9 +60,8 @@ class Magazzino:
         res = self.cur.execute("SELECT * FROM magazzino")
         results = res.fetchall()
 
-        items = []
-        for result in results:
-            items.append(StorageItem(result[0], result[1], result[2], result[3]))
+        items = [StorageItem(*result) for result in results] #StorageItem(*result) per passare tutti gli elementi 
+        #della tupla result come argomenti al costruttore di StorageItem
         return items
 
     def erase_database(self) -> None:
@@ -92,9 +83,7 @@ class Magazzino:
         Returns:
             int: The quantity of the item.
         """
-        current_quantity = self.cur.execute(
-            f"SELECT quantity FROM magazzino WHERE barcode = '{barcode}'"
-        ).fetchone()
+        current_quantity = self.cur.execute("SELECT quantity FROM magazzino WHERE barcode = ?", (barcode,)).fetchone()
         if current_quantity is None:
             return 0
 
@@ -136,11 +125,12 @@ class Magazzino:
             new_threshold (int): The new threshold quantity for the product.
         """
         self.cur.execute(
-            f"UPDATE magazzino SET threshold = {new_threshold} WHERE barcode = '{barcode}'"
+            "UPDATE magazzino SET threshold = ? WHERE barcode = ?",
+            (new_threshold, barcode),
         )
         self.con.commit()
 
-    def get_missing_product_quantity(self) -> list[dict]:
+    def get_missing_product_quantity(self) -> list[MissingItem]:
         """
         Retrieve a list of products with quantities below their respective thresholds.
 
@@ -155,9 +145,9 @@ class Magazzino:
                 WHERE quantity < threshold
             """
         ).fetchall()
-        difference = []
+        missing_products = []
 
-        for miss in missing_list:
-            difference.append({"barcode": miss[0], "difference": miss[2] - miss[1]})
+        for row in missing_list:
+            missing_products.append(MissingItem(barcode=row[0], difference=row[2] - row[1]))
 
-        return difference
+        return missing_products

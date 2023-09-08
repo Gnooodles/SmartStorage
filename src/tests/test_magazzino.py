@@ -1,12 +1,13 @@
 from smart_storage.magazzino import Magazzino
-from smart_storage.item import StorageItem
+from smart_storage.item import StorageItem, MissingItem
+from smart_storage.interfaces import ScraperInterface
 import os
 
 MOCK_PATH = "src/tests/mock_magazzino.db"
 
 
 class MockProdotti:
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, scraper: ScraperInterface) -> None:
         pass
 
     def get_name_from_barcode(self, barcode: str) -> str:
@@ -15,8 +16,11 @@ class MockProdotti:
     def scrape_barcode_name(self, barcode: str) -> str:
         return "test"
 
-
-mock_prodotti = MockProdotti("")
+class MockScraper:
+    def get_name_from_barcode(self, barcode) -> str:
+        return ""
+    
+mock_prodotti = MockProdotti("", MockScraper())
 
 
 def test_database_creation():
@@ -204,9 +208,8 @@ def test_get_missin_products_quantity():
     magazzino.add_item("111111")
     magazzino.add_item("222222")
     magazzino.update_threshold("111111", 5)
-    expected_items = [
-        {"barcode": "111111", "difference": 4},
-    ]
+    expected_items = []
+    expected_items.append(MissingItem("111111", 4))
     current_items = magazzino.get_missing_product_quantity()
     os.remove(MOCK_PATH)
     assert current_items == expected_items

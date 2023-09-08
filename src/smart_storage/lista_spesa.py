@@ -39,25 +39,17 @@ class ListaSpesa:
 
         name = self.prodotti.get_name_from_barcode(barcode)
 
-        # Check if the item already exists in the database
-        existing_item = self.cur.execute(
-            f"SELECT * FROM lista WHERE barcode = '{barcode}'"
-        ).fetchone()
-
-        if existing_item is None:
-            # Insert a new item into the database with initial quantity of 1
+        with self.con:
+            # Use a parameterized query to avoid SQL injection
             self.cur.execute(
-                f"INSERT INTO lista VALUES ('{barcode}', '{name}', {quantity})"
+                """
+                INSERT INTO lista (barcode, name, quantity)
+                VALUES (?, ?, 1)
+                ON CONFLICT(barcode) DO UPDATE
+                SET quantity = quantity + 1;
+                """,
+                (barcode, name),
             )
-        else:
-            # Increment the quantity of the existing item
-            old_quantity = self.get_item_quantity(barcode)
-            self.cur.execute(
-                f"UPDATE lista SET quantity = {old_quantity + quantity} WHERE barcode = '{barcode}'"
-            )
-
-        # Commit the changes to the database
-        self.con.commit()
 
     def get_items(self) -> list[Item]:
         """
