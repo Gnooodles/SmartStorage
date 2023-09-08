@@ -24,10 +24,9 @@ def add_missing_to_list():
     """
     missing_products = magazzino.get_missing_products_quantity()
     for missing in missing_products:
-        already_in_list = lista_spesa.get_item_quantity(missing.barcode)
-        print(already_in_list)
+        current_quantity = lista_spesa.get_item_quantity(missing.barcode)
         lista_spesa.remove_one_item(missing.barcode)
-        new_quantity = already_in_list + missing.difference
+        new_quantity = current_quantity + missing.difference
         lista_spesa.add_item(missing.barcode, quantity=new_quantity)
 
 
@@ -72,14 +71,18 @@ edited_data = st.data_editor(
 
 if st.button("Salva modifiche"):
     for i, row in edited_data.iterrows():
-        # sta query l'ho fatta partire usando direttamente il cursore di magazzino,
-        # non è pulito ma non avevo voglia di cambiare il magazzino
-        magazzino.cur.execute(
-            f"""UPDATE magazzino 
-                SET barcode = '{row['Code']}', name = '{row['Name']}', quantity = {row['Quantity']}, threshold = {row['Threshold']}
-                WHERE barcode = '{row['Code']}'
+        barcode = row["Code"]
+        name = row["Name"]
+        quantity = row["Quantity"]
+        threshold = row["Threshold"]
+
+        # Utilizza una query parametrica per evitare l'iniezione SQL
+        query = """
+            UPDATE magazzino 
+            SET barcode = ?, name = ?, quantity = ?, threshold = ?
+            WHERE barcode = ?
         """
-        )
+        magazzino.cur.execute(query, (barcode, name, quantity, threshold, barcode))
         magazzino.con.commit()
 
     st.success("Modifiche salvate con successo!")
