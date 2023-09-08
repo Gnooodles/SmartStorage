@@ -134,14 +134,12 @@ class Magazzino:
         )
         self.con.commit()
 
-    def get_missing_product_quantity(self) -> list[MissingItem]:
+    def get_missing_products_quantity(self) -> list[MissingItem]:
         """
         Retrieve a list of products with quantities below their respective thresholds.
 
         Returns:
-            list[dict]: A list of dictionaries containing information about missing products.
-                Each dictionary has the keys 'barcode' and 'difference', representing the
-                product's barcode and the difference between its threshold and current quantity.
+            list[MissingItem]: A list of MissingItems
         """
         missing_list = self.cur.execute(
             """SELECT barcode, quantity, threshold

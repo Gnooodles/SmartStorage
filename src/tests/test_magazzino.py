@@ -212,6 +212,6 @@ def test_get_missin_products_quantity():
     magazzino.update_threshold("111111", 5)
     expected_items = []
     expected_items.append(MissingItem("111111", 4))
-    current_items = magazzino.get_missing_product_quantity()
+    current_items = magazzino.get_missing_products_quantity()
     os.remove(MOCK_PATH)
     assert current_items == expected_items

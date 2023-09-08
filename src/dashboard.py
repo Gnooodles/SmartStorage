@@ -22,7 +22,7 @@ def add_missing_to_list():
     Add missing products to the shopping list.
     Checks for products in the warehouse with quantities below the threshold and adds them to the shopping list.
     """
-    missing_products = magazzino.get_missing_product_quantity()
+    missing_products = magazzino.get_missing_products_quantity()
     for missing in missing_products:
         already_in_list = lista_spesa.get_item_quantity(missing.barcode)
         print(already_in_list)
