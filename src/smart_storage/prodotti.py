@@ -20,17 +20,14 @@ class Prodotti:
             str: The name of the item associated with the given barcode.
         """
 
-        # Retrieve the name of the item from the database using the provided barcode
-        item_name = self.cur.execute(
-            f"SELECT name FROM prodotti WHERE code = '{barcode}'"
-        ).fetchone()
+        self.cur.execute("SELECT name FROM prodotti WHERE code = ?", (barcode,))
+        item_name = self.cur.fetchone()
 
-        if item_name is None:
-            # if the item's barcode is not finded in the database, search the barcode on the internet
-            return self.scrape_barcode_name(barcode)
-            # return ""
+        if item_name is not None:
+            return item_name[0]
 
-        return item_name[0]
+        # If the item's barcode is not found in the database, search the barcode on the internet
+        return self.scrape_barcode_name(barcode)
 
     def scrape_barcode_name(self, barcode: str) -> str:
         """
@@ -50,5 +47,7 @@ class Prodotti:
 
     def _update_product(self, barcode: str, name: str):
         # Funzione per aggiornare il database con il barcode e il nome trovato tramite lo scraper
-        self.cur.execute(f"INSERT INTO prodotti VALUES ('{barcode}', '{name}')")
+        self.cur.execute(
+            "INSERT INTO prodotti (barcode, name) VALUES (?, ?)", (barcode, name)
+        )
         self.con.commit()
