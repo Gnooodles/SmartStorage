@@ -4,6 +4,7 @@ import os
 
 MOCK_PATH = "src/tests/mock_magazzino.db"
 
+
 class MockProdotti:
     def __init__(self, path: str) -> None:
         pass
@@ -33,6 +34,7 @@ def test_add_one_item():
     os.remove(MOCK_PATH)
     assert current_items == expected_items
 
+
 def test_add_one_item_empty():
     magazzino = Magazzino(MOCK_PATH, mock_prodotti)
     magazzino.add_item("")
@@ -47,8 +49,8 @@ def test_add_multiple_items():
     magazzino.add_item("111111")
     magazzino.add_item("222222")
     expected_items = []
-    expected_items.append(StorageItem("111111", "test", 1,0))
-    expected_items.append(StorageItem("222222", "test", 1,0))
+    expected_items.append(StorageItem("111111", "test", 1, 0))
+    expected_items.append(StorageItem("222222", "test", 1, 0))
     current_items = magazzino.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
@@ -60,7 +62,7 @@ def test_add_item_multiple_times():
     magazzino.add_item("111111")
     magazzino.add_item("111111")
     expected_items = []
-    expected_items.append(StorageItem("111111", "test", 3,0))
+    expected_items.append(StorageItem("111111", "test", 3, 0))
     current_items = magazzino.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
@@ -87,6 +89,7 @@ def test_erase_database():
     magazzino.add_item("111111")
     magazzino.erase_database()
     assert magazzino.get_items() == []
+
 
 def test_get_item_quantity():
     magazzino = Magazzino(MOCK_PATH, mock_prodotti)
@@ -155,10 +158,11 @@ def test_remove_one_item_non_present_with_other_items():
     magazzino.remove_one_item("111111")
     expected_items = []
     expected_items.append(StorageItem("222222", "test", 2, 0))
-    expected_items.append(StorageItem("333333", "test", 1,0))
+    expected_items.append(StorageItem("333333", "test", 1, 0))
     current_items = magazzino.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
+
 
 def test_update_threshold():
     magazzino = Magazzino(MOCK_PATH, mock_prodotti)
@@ -170,6 +174,7 @@ def test_update_threshold():
     os.remove(MOCK_PATH)
     assert current_items == expected_items
 
+
 def test_update_threshold_product_not_present():
     magazzino = Magazzino(MOCK_PATH, mock_prodotti)
     magazzino.update_threshold("111111", 2)
@@ -177,6 +182,7 @@ def test_update_threshold_product_not_present():
     current_items = magazzino.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
+
 
 def test_update_threshold_product_not_present_with_other_products():
     magazzino = Magazzino(MOCK_PATH, mock_prodotti)
@@ -186,11 +192,12 @@ def test_update_threshold_product_not_present_with_other_products():
     magazzino.update_threshold("111111", 2)
     magazzino.update_threshold("222222", 1)
     expected_items = []
-    expected_items.append(StorageItem("222222", "test", 2,1))
-    expected_items.append(StorageItem("333333", "test", 1,0))
+    expected_items.append(StorageItem("222222", "test", 2, 1))
+    expected_items.append(StorageItem("333333", "test", 1, 0))
     current_items = magazzino.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
+
 
 def test_get_missin_products_quantity():
     magazzino = Magazzino(MOCK_PATH, mock_prodotti)
@@ -203,4 +210,3 @@ def test_get_missin_products_quantity():
     current_items = magazzino.get_missing_product_quantity()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
-
