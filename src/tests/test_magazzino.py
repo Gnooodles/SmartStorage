@@ -16,10 +16,12 @@ class MockProdotti:
     def scrape_barcode_name(self, barcode: str) -> str:
         return "test"
 
+
 class MockScraper:
     def get_name_from_barcode(self, barcode) -> str:
         return ""
-    
+
+
 mock_prodotti = MockProdotti("", MockScraper())
 
 

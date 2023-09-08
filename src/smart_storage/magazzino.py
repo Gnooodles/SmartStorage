@@ -60,8 +60,10 @@ class Magazzino:
         res = self.cur.execute("SELECT * FROM magazzino")
         results = res.fetchall()
 
-        items = [StorageItem(*result) for result in results] #StorageItem(*result) per passare tutti gli elementi 
-        #della tupla result come argomenti al costruttore di StorageItem
+        items = [
+            StorageItem(*result) for result in results
+        ]  # StorageItem(*result) per passare tutti gli elementi
+        # della tupla result come argomenti al costruttore di StorageItem
         return items
 
     def erase_database(self) -> None:
@@ -83,7 +85,9 @@ class Magazzino:
         Returns:
             int: The quantity of the item.
         """
-        current_quantity = self.cur.execute("SELECT quantity FROM magazzino WHERE barcode = ?", (barcode,)).fetchone()
+        current_quantity = self.cur.execute(
+            "SELECT quantity FROM magazzino WHERE barcode = ?", (barcode,)
+        ).fetchone()
         if current_quantity is None:
             return 0
 
@@ -148,6 +152,8 @@ class Magazzino:
         missing_products = []
 
         for row in missing_list:
-            missing_products.append(MissingItem(barcode=row[0], difference=row[2] - row[1]))
+            missing_products.append(
+                MissingItem(barcode=row[0], difference=row[2] - row[1])
+            )
 
         return missing_products
