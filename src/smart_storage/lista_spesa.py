@@ -1,14 +1,20 @@
 import sqlite3
-#from smart_storage.prodotti import Prodotti
+
+# from smart_storage.prodotti import Prodotti
 from typing import Protocol
+from smart_storage.item import Item
 import os
 
+
 class ProductFinder(Protocol):
-    def __init__(self, path:str) -> None: ...
+    def __init__(self, path: str) -> None:
+        ...
 
-    def get_name_from_barcode(self, barcode: str) -> str: ...
+    def get_name_from_barcode(self, barcode: str) -> str:
+        ...
 
-    def scrape_barcode_name(self, barcode: str) -> str: ...
+    def scrape_barcode_name(self, barcode: str) -> str:
+        ...
 
 
 class ListaSpesa:
@@ -66,17 +72,22 @@ class ListaSpesa:
         # Commit the changes to the database
         self.con.commit()
 
-    def get_items(self):
+    def get_items(self) -> list[Item]:
         """
         Retrieve all items from the database.
 
         Returns:
-            list: A list of tuples representing items in the format (barcode, name, quantity).
+            list: A list of Items.
         """
         res = self.cur.execute("SELECT * FROM lista")
-        return res.fetchall()
+        results = res.fetchall()
 
-    def erase_database(self):
+        items = []
+        for result in results:
+            items.append(Item(result[0], result[1], result[2]))
+        return items
+
+    def erase_database(self) -> None:
         """
         Delete the database file.
 
@@ -104,7 +115,7 @@ class ListaSpesa:
 
         return current_quantity[0]
 
-    def remove_one_item(self, barcode: str, quantity: int = 1):
+    def remove_one_item(self, barcode: str, quantity: int = 1) -> None:
         """
         Remove one quantity of the specified item from the database.
 
