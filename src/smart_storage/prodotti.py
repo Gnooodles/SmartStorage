@@ -2,7 +2,12 @@ import sqlite3
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-import time
+from typing import Protocol
+
+
+class ScraperInterface(Protocol):
+    def get_name_from_barcode(self, barcode) -> str:
+        ...
 
 
 class Prodotti:
@@ -11,7 +16,7 @@ class Prodotti:
         self.con = sqlite3.connect(self.path)
         self.cur = self.con.cursor()
 
-    def get_name_from_barcode(self, barcode: str) -> str:
+    def get_name_from_barcode(self, barcode: str, scraper: ScraperInterface) -> str:
         """
         Retrieve the name of an item from the database using its barcode.
 
@@ -29,12 +34,12 @@ class Prodotti:
 
         if item_name is None:
             # if the item's barcode is not finded in the database, search the barcode on the internet
-            return self.scrape_barcode_name(barcode)
+            return self.scrape_barcode_name(barcode, scraper)
             # return ""
 
         return item_name[0]
 
-    def scrape_barcode_name(self, barcode: str) -> str:
+    def scrape_barcode_name(self, barcode: str, scraper: ScraperInterface) -> str:
         """
         Scrapes the name associated with a barcode from a Google search result.
         And update the database with the barcode and the associate name finded.
@@ -46,33 +51,7 @@ class Prodotti:
             str: The name associated with the given barcode. Returns an empty string if no result is found.
         """
         # setup driver and options
-        options = Options()
-        options.add_argument("--headless")
-        # options.add_argument('--disable-blink-features=AutomationControlled')
-        driver = webdriver.Chrome(options=options)
-
-        # get the google search url for the barcode
-        driver.get(f"https://www.google.com/search?q={barcode}")
-        driver.implicitly_wait(1)
-
-        # find and click the button for the privacy consense pop-up
-        button = driver.find_element(By.ID, "L2AGLb")
-        button.click()
-        driver.implicitly_wait(2)
-
-        # find and return the first result, if None return an empty string
-        # first_result = driver.find_element(By.CSS_SELECTOR, ".tF2Cxc") # another way to get the first result
-        first_result = driver.find_element(By.CSS_SELECTOR, "h3.LC20lb")
-
-        # driver.quit()
-
-        if first_result is None:
-            return ""
-
-        # get the first line if it is a multiline
-        result_name = (
-            first_result.text.split("\n")[0].strip().replace("'", "").replace('"', "")
-        )
+        result_name = scraper.get_name_from_barcode(barcode)
         self._update_product(barcode, result_name)
         return result_name
 
