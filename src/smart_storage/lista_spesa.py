@@ -1,6 +1,14 @@
 import sqlite3
-from smart_storage.prodotti import Prodotti
+#from smart_storage.prodotti import Prodotti
+from typing import Protocol
 import os
+
+class ProductFinder(Protocol):
+    def __init__(self, path:str) -> None: ...
+
+    def get_name_from_barcode(self, barcode: str) -> str: ...
+
+    def scrape_barcode_name(self, barcode: str) -> str: ...
 
 
 class ListaSpesa:
@@ -14,7 +22,7 @@ class ListaSpesa:
         path (str): The path to the SQLite database file.
     """
 
-    def __init__(self, path: str, prodotti: Prodotti) -> None:
+    def __init__(self, path: str, prodotti: ProductFinder) -> None:
         self.path = path
         self.prodotti = prodotti
         self.con = sqlite3.connect(self.path)
