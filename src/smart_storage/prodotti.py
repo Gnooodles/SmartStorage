@@ -27,12 +27,12 @@ class Prodotti:
 
         if item_name is None:
             # if the item's barcode is not finded in the database, search the barcode on the internet
-            return self.scrape_barcode_name(barcode, self.scraper)
+            return self.scrape_barcode_name(barcode)
             # return ""
 
         return item_name[0]
 
-    def scrape_barcode_name(self, barcode: str, scraper: ScraperInterface) -> str:
+    def scrape_barcode_name(self, barcode: str) -> str:
         """
         Scrapes the name associated with a barcode from a Google search result.
         And update the database with the barcode and the associate name finded.
@@ -44,7 +44,7 @@ class Prodotti:
             str: The name associated with the given barcode. Returns an empty string if no result is found.
         """
         # setup driver and options
-        result_name = scraper.get_name_from_barcode(barcode)
+        result_name = self.scraper.get_name_from_barcode(barcode)
         self._update_product(barcode, result_name)
         return result_name
 

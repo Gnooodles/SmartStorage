@@ -2,10 +2,11 @@ from smart_storage.lettura_seriale import SerialReader
 from smart_storage.magazzino import Magazzino
 from smart_storage.prodotti import Prodotti
 from smart_storage.lista_spesa import ListaSpesa
+from smart_storage.scraper import Scraper
 import time
 
 # Create an instance of the Magazzino class, initializing the storage system
-prodotti = Prodotti("prodotti.db")
+prodotti = Prodotti("prodotti.db", Scraper())
 magazzino = Magazzino("magazzino.db", prodotti)
 lista_spesa = ListaSpesa("listaspesa.db", prodotti)
 

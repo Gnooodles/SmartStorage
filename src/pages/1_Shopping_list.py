@@ -1,10 +1,11 @@
 import streamlit as st
 from smart_storage.lista_spesa import ListaSpesa
 from smart_storage.prodotti import Prodotti
+from smart_storage.scraper import Scraper
 
 st.set_page_config(page_title="Smart Storage", layout="wide")
 st.title("Shopping list")
-prodotti = Prodotti("prodotti.db")
+prodotti = Prodotti("prodotti.db", Scraper())
 
 
 # fetch database
