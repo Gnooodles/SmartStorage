@@ -1,11 +1,9 @@
 from smart_storage.lista_spesa import ListaSpesa
-from smart_storage.prodotti import Prodotti
 from smart_storage.item import Item
 import os
 
 
 MOCK_PATH = "src/tests/mock_lista_spesa.db"
-PRODOTTI = Prodotti("prodotti.db")
 
 
 class MockProdotti:

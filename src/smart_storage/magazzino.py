@@ -1,5 +1,6 @@
 import sqlite3
-from smart_storage.prodotti import Prodotti
+from smart_storage.product_finder_interface import ProductFinderInterface
+from smart_storage.item import StorageItem
 
 
 class Magazzino:
@@ -13,7 +14,7 @@ class Magazzino:
         path (str): The path to the SQLite database file.
     """
 
-    def __init__(self, path: str, prodotti: Prodotti) -> None:
+    def __init__(self, path: str, prodotti: ProductFinderInterface) -> None:
         self.path = path
         self.prodotti = prodotti
         self.con = sqlite3.connect(self.path)
@@ -57,7 +58,7 @@ class Magazzino:
         # Commit the changes to the database
         self.con.commit()
 
-    def get_items(self):
+    def get_items(self) -> list[StorageItem]:
         """
         Retrieve all items from the database.
 
@@ -65,9 +66,14 @@ class Magazzino:
             list: A list of tuples representing items in the format (barcode, name, quantity).
         """
         res = self.cur.execute("SELECT * FROM magazzino")
-        return res.fetchall()
+        results = res.fetchall()
 
-    def erase_database(self):
+        items = []
+        for result in results:
+            items.append(StorageItem(result[0], result[1], result[2], result[3]))
+        return items
+
+    def erase_database(self) -> None:
         """
         Delete the database file.
 
@@ -94,7 +100,7 @@ class Magazzino:
 
         return current_quantity[0]
 
-    def remove_one_item(self, barcode: str):
+    def remove_one_item(self, barcode: str) -> None:
         """
         Remove one quantity of the specified item from the database.
 
@@ -121,7 +127,7 @@ class Magazzino:
             # Commit the changes to the database
             self.con.commit()
 
-    def update_threshold(self, barcode: str, new_threshold: int):
+    def update_threshold(self, barcode: str, new_threshold: int) -> None:
         """
         Update the threshold quantity for a product in the warehouse.
 
