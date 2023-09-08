@@ -1,6 +1,6 @@
 import sqlite3
 
-from smart_storage.product_finder_interface import ProductFinderInterface
+from smart_storage.interfaces import ProductFinderInterface
 from smart_storage.item import Item
 
 

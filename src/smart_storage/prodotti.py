@@ -1,22 +1,15 @@
 import sqlite3
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from typing import Protocol
-
-
-class ScraperInterface(Protocol):
-    def get_name_from_barcode(self, barcode) -> str:
-        ...
+from smart_storage.interfaces import ScraperInterface
 
 
 class Prodotti:
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, scraper: ScraperInterface) -> None:
         self.path = path
         self.con = sqlite3.connect(self.path)
         self.cur = self.con.cursor()
+        self.scraper = scraper
 
-    def get_name_from_barcode(self, barcode: str, scraper: ScraperInterface) -> str:
+    def get_name_from_barcode(self, barcode: str) -> str:
         """
         Retrieve the name of an item from the database using its barcode.
 
@@ -34,7 +27,7 @@ class Prodotti:
 
         if item_name is None:
             # if the item's barcode is not finded in the database, search the barcode on the internet
-            return self.scrape_barcode_name(barcode, scraper)
+            return self.scrape_barcode_name(barcode, self.scraper)
             # return ""
 
         return item_name[0]
@@ -59,9 +52,3 @@ class Prodotti:
         # Funzione per aggiornare il database con il barcode e il nome trovato tramite lo scraper
         self.cur.execute(f"INSERT INTO prodotti VALUES ('{barcode}', '{name}')")
         self.con.commit()
-
-
-if __name__ == "__main__":
-    prodotti = Prodotti("prodotti.db")
-    name = prodotti.scrape_barcode_name("8076800000139")
-    print(name)

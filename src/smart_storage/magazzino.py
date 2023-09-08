@@ -1,5 +1,5 @@
 import sqlite3
-from smart_storage.product_finder_interface import ProductFinderInterface
+from smart_storage.interfaces import ProductFinderInterface
 from smart_storage.item import StorageItem
 
 
@@ -63,7 +63,7 @@ class Magazzino:
         Retrieve all items from the database.
 
         Returns:
-            list: A list of tuples representing items in the format (barcode, name, quantity).
+            list: A list of StorageItems.
         """
         res = self.cur.execute("SELECT * FROM magazzino")
         results = res.fetchall()
