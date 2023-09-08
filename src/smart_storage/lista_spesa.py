@@ -86,7 +86,7 @@ class ListaSpesa:
             int: The quantity of the item.
         """
         current_quantity = self.cur.execute(
-            f"SELECT quantity FROM lista WHERE barcode = '{barcode}'"
+            "SELECT quantity FROM lista WHERE barcode = ?", (barcode,)
         ).fetchone()
 
         if current_quantity is None:

@@ -88,6 +88,7 @@ class Magazzino:
         current_quantity = self.cur.execute(
             "SELECT quantity FROM magazzino WHERE barcode = ?", (barcode,)
         ).fetchone()
+        
         if current_quantity is None:
             return 0
 
