@@ -3,7 +3,7 @@ from smart_storage.magazzino import Magazzino
 from smart_storage.prodotti import Prodotti
 from smart_storage.lista_spesa import ListaSpesa
 from smart_storage.scraper import Scraper
-from smart_storage.dashboard_helper import add_missing_to_list
+from smart_storage.dashboard_helper import add_missing_to_list, update_row
 import pandas as pd
 import time
 
@@ -57,15 +57,7 @@ if st.button("Salva modifiche"):
         name = row["Name"]
         quantity = row["Quantity"]
         threshold = row["Threshold"]
-
-        # Utilizza una query parametrica per evitare l'iniezione SQL
-        query = """
-            UPDATE magazzino 
-            SET barcode = ?, name = ?, quantity = ?, threshold = ?
-            WHERE barcode = ?
-        """
-        magazzino.cur.execute(query, (barcode, name, quantity, threshold, barcode))
-        magazzino.con.commit()
+        update_row(magazzino, barcode, name, quantity, threshold)
 
     st.success("Modifiche salvate con successo!")
     time.sleep(0.5)

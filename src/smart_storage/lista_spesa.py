@@ -69,7 +69,7 @@ class ListaSpesa:
 
     def erase_database(self) -> None:
         """
-        Delete the database file.
+        Delete all data from the database table.
 
         Caution: This operation is irreversible and will result in permanent data loss.
         """
@@ -97,13 +97,16 @@ class ListaSpesa:
 
     def remove_one_item(self, barcode: str, quantity: int = 1) -> None:
         """
-        Remove one quantity of the specified item from the database.
+        Remove one or more quantities of the specified item from the database.
 
         Args:
             barcode (str): The barcode of the item to be removed.
+            quantity (int, optional): The quantity to be removed (default is 1).
 
-        If the item's quantity is greater than 1, its quantity is decremented by 1.
-        If the item's quantity is 1, the item is completely removed from the database.
+        This function removes one or more quantities of the specified item from the database. If the item's
+        quantity is greater than the specified quantity, its quantity is decremented accordingly. If the
+        item's quantity is equal to or less than the specified quantity, the item is completely removed
+        from the database.
         """
         existing_item = self.cur.execute(
             f"SELECT * FROM {self.table_name} WHERE barcode = '{barcode}'"

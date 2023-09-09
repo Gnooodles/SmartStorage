@@ -46,6 +46,9 @@ class Prodotti:
         return result_name
 
     def _update_product(self, barcode: str, name: str):
+        """
+        Update the database with the barcode and the associate name.
+        """
         # Funzione per aggiornare il database con il barcode e il nome trovato tramite lo scraper
         self.cur.execute(
             "INSERT INTO prodotti (barcode, name) VALUES (?, ?)", (barcode, name)

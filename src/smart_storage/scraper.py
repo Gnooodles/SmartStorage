@@ -36,6 +36,9 @@ class Scraper:
         return result_name
 
     def get_name_from_barcode(self, barcode) -> str:
+        """
+        Retrieve the name of a product from the internet using its barcode.
+        """
         # f"https://www.google.com/search?q={barcode}"
         self._get_url(f"https://www.google.com/search?q={barcode}")
         self._click_privacy_consense("L2AGLb")
