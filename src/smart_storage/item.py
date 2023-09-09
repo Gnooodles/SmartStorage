@@ -8,7 +8,6 @@ class Item:
     name: str
     quantity: int
 
-
 @dataclass
 class StorageItem(Item):
     threshold: int

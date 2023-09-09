@@ -14,9 +14,9 @@ lista_spesa = ListaSpesa("listaspesa.db", prodotti)
 if st.button("Remove list"):
     lista_spesa.erase_database()
 
-items: list = lista_spesa.get_items()
+items = lista_spesa.get_items()
 
 for item in items:
     checked = st.checkbox(
-        f"Item: {item[1]} - Quantity: {item[2]}", value=False, key=item[0]
+        f"Item: {item.name} - Quantity: {item.quantity}", value=False, key=item.barcode
     )

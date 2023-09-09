@@ -44,11 +44,11 @@ class ListaSpesa:
             self.cur.execute(
                 """
                 INSERT INTO lista (barcode, name, quantity)
-                VALUES (?, ?, 1)
+                VALUES (?, ?, ?)
                 ON CONFLICT(barcode) DO UPDATE
-                SET quantity = quantity + 1;
+                SET quantity = quantity + ?;
                 """,
-                (barcode, name),
+                (barcode, name, quantity, quantity),
             )
 
     def get_items(self) -> list[Item]:

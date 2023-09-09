@@ -42,8 +42,9 @@ with col_button_2:
 
 # Create a DataFrame for the storage items
 df = pd.DataFrame(
-    magazzino.get_items(), columns=["Code", "Name", "Quantity", "Threshold"]
+    [vars(item) for item in magazzino.get_items()]
 )
+df.rename(columns={'barcode': 'Code', 'name': 'Name', 'quantity': 'Quantity', 'threshold': 'Threshold'}, inplace=True)
 
 
 # Function to highlight the 'Quantity' column if it's below the 'Threshold'
