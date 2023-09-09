@@ -1,9 +1,10 @@
 import sqlite3
 from smart_storage.interfaces import ProductFinderInterface
 from smart_storage.item import StorageItem, MissingItem
+from smart_storage.lista_spesa import ListaSpesa
 
 
-class Magazzino:
+class Magazzino(ListaSpesa):
     """
     A class representing a storage system.
 
@@ -15,12 +16,13 @@ class Magazzino:
     """
 
     def __init__(self, path: str, prodotti: ProductFinderInterface) -> None:
+        self.table_name = "magazzino"
         self.path = path
         self.prodotti = prodotti
         self.con = sqlite3.connect(self.path)
         self.cur = self.con.cursor()
         self.cur.execute(
-            "CREATE TABLE IF NOT EXISTS magazzino(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER, threshold INTEGER)"
+            f"CREATE TABLE IF NOT EXISTS {self.table_name}(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER, threshold INTEGER)"
         )
 
     def add_item(self, barcode: str) -> None:
@@ -41,8 +43,8 @@ class Magazzino:
         with self.con:
             # Use a parameterized query to avoid SQL injection
             self.cur.execute(
-                """
-                INSERT INTO magazzino (barcode, name, quantity, threshold)
+                f"""
+                INSERT INTO {self.table_name} (barcode, name, quantity, threshold)
                 VALUES (?, ?, 1, 0)
                 ON CONFLICT(barcode) DO UPDATE
                 SET quantity = quantity + 1;
@@ -57,7 +59,7 @@ class Magazzino:
         Returns:
             list: A list of StorageItems.
         """
-        res = self.cur.execute("SELECT * FROM magazzino")
+        res = self.cur.execute(f"SELECT * FROM {self.table_name}")
         results = res.fetchall()
 
         items = [
@@ -65,61 +67,6 @@ class Magazzino:
         ]  # StorageItem(*result) per passare tutti gli elementi
         # della tupla result come argomenti al costruttore di StorageItem
         return items
-
-    def erase_database(self) -> None:
-        """
-        Delete the database file.
-
-        Caution: This operation is irreversible and will result in permanent data loss.
-        """
-        self.cur.execute("DELETE FROM magazzino")
-        self.con.commit()
-
-    def get_item_quantity(self, barcode: str) -> int:
-        """
-        Get the quantity of a specific item based on its barcode.
-
-        Args:
-            barcode (str): The barcode of the item.
-
-        Returns:
-            int: The quantity of the item.
-        """
-        current_quantity = self.cur.execute(
-            "SELECT quantity FROM magazzino WHERE barcode = ?", (barcode,)
-        ).fetchone()
-
-        if current_quantity is None:
-            return 0
-
-        return current_quantity[0]
-
-    def remove_one_item(self, barcode: str) -> None:
-        """
-        Remove one quantity of the specified item from the database.
-
-        Args:
-            barcode (str): The barcode of the item to be removed.
-
-        If the item's quantity is greater than 1, its quantity is decremented by 1.
-        If the item's quantity is 1, the item is completely removed from the database.
-        """
-        existing_item = self.cur.execute(
-            f"SELECT * FROM magazzino WHERE barcode = '{barcode}'"
-        ).fetchone()
-
-        if existing_item is not None:
-            quantity = self.get_item_quantity(barcode)
-
-            if quantity == 1:
-                self.cur.execute(f"DELETE FROM magazzino WHERE barcode = '{barcode}'")
-            else:
-                self.cur.execute(
-                    f"UPDATE magazzino SET quantity = {quantity - 1} WHERE barcode = '{barcode}'"
-                )
-
-            # Commit the changes to the database
-            self.con.commit()
 
     def update_threshold(self, barcode: str, new_threshold: int) -> None:
         """

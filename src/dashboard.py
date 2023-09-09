@@ -41,10 +41,16 @@ with col_button_2:
     # TODO: Implement adding items with quantities below the threshold to the shopping list
 
 # Create a DataFrame for the storage items
-df = pd.DataFrame(
-    [vars(item) for item in magazzino.get_items()]
+df = pd.DataFrame([vars(item) for item in magazzino.get_items()])
+df.rename(
+    columns={
+        "barcode": "Code",
+        "name": "Name",
+        "quantity": "Quantity",
+        "threshold": "Threshold",
+    },
+    inplace=True,
 )
-df.rename(columns={'barcode': 'Code', 'name': 'Name', 'quantity': 'Quantity', 'threshold': 'Threshold'}, inplace=True)
 
 
 # Function to highlight the 'Quantity' column if it's below the 'Threshold'
