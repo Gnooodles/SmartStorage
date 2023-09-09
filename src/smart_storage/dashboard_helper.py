@@ -13,6 +13,7 @@ def add_missing_to_list(
     for missing in missing_products:
         current_quantity = lista_spesa.get_item_quantity(missing.barcode)
         if current_quantity == 0:
+            # se non esiste il prodotto nella lista
             # allora bisogna aggiungere prima il prodotto alla lista con quantità 0
             lista_spesa.add_item(missing.barcode, quantity=0)
         lista_spesa.update_threshold(missing.barcode, missing.difference)
