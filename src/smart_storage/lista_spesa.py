@@ -22,7 +22,7 @@ class ListaSpesa:
         self.con = sqlite3.connect(self.path)
         self.cur = self.con.cursor()
         self.cur.execute(
-            f"CREATE TABLE IF NOT EXISTS {self.table_name}(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
+            f"CREATE TABLE IF NOT EXISTS {self.table_name}(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER, threshold INTEGER)"
         )
 
     def add_item(self, barcode: str, quantity: int = 1) -> None:
@@ -44,8 +44,8 @@ class ListaSpesa:
             # Use a parameterized query to avoid SQL injection
             self.cur.execute(
                 f"""
-                INSERT INTO {self.table_name} (barcode, name, quantity)
-                VALUES (?, ?, ?)
+                INSERT INTO {self.table_name} (barcode, name, quantity, threshold)
+                VALUES (?, ?, ?, 0)
                 ON CONFLICT(barcode) DO UPDATE
                 SET quantity = quantity + ?;
                 """,
@@ -64,7 +64,7 @@ class ListaSpesa:
 
         items = []
         for result in results:
-            items.append(Item(result[0], result[1], result[2]))
+            items.append(Item(result[0], result[1], result[2]+result[3]))
         return items
 
     def erase_database(self) -> None:
@@ -126,3 +126,18 @@ class ListaSpesa:
 
             # Commit the changes to the database
             self.con.commit()
+
+    def update_threshold(self, barcode: str, new_threshold: int) -> None:
+        """
+        Update the threshold quantity for a product in the warehouse.
+
+        Args:
+            barcode (str): The barcode of the product to update.
+            new_threshold (int): The new threshold quantity for the product.
+        """
+        self.cur.execute(
+            f"UPDATE {self.table_name} SET threshold = ? WHERE barcode = ?",
+            (new_threshold, barcode),
+        )
+        self.con.commit()
+

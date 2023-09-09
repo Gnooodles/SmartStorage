@@ -12,9 +12,11 @@ def add_missing_to_list(
     missing_products = magazzino.get_missing_products_quantity()
     for missing in missing_products:
         current_quantity = lista_spesa.get_item_quantity(missing.barcode)
-        lista_spesa.remove_one_item(missing.barcode)
-        new_quantity = current_quantity + missing.difference
-        lista_spesa.add_item(missing.barcode, quantity=new_quantity)
+        if current_quantity == 0:
+            # allora bisogna aggiungere prima il prodotto alla lista con quantità 0
+            lista_spesa.add_item(missing.barcode, quantity=0)
+        lista_spesa.update_threshold(missing.barcode, missing.difference)
+
 
 
 def update_row(magazzino, barcode: str, name: str, quantity: int, threshold: int):

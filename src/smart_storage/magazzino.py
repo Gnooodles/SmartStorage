@@ -68,19 +68,7 @@ class Magazzino(ListaSpesa):
         # della tupla result come argomenti al costruttore di StorageItem
         return items
 
-    def update_threshold(self, barcode: str, new_threshold: int) -> None:
-        """
-        Update the threshold quantity for a product in the warehouse.
 
-        Args:
-            barcode (str): The barcode of the product to update.
-            new_threshold (int): The new threshold quantity for the product.
-        """
-        self.cur.execute(
-            "UPDATE magazzino SET threshold = ? WHERE barcode = ?",
-            (new_threshold, barcode),
-        )
-        self.con.commit()
 
     def get_missing_products_quantity(self) -> list[MissingItem]:
         """
