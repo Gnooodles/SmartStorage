@@ -1,4 +1,5 @@
 from typing import Protocol
+from smart_storage.item import MissingItem
 
 
 class ScraperInterface(Protocol):
@@ -14,4 +15,20 @@ class ProductFinderInterface(Protocol):
         ...
 
     def scrape_barcode_name(self, barcode: str) -> str:
+        ...
+
+
+class ListaSpesaInterface(Protocol):
+    def add_item(self, barcode: str, quantity: int = 1) -> None:
+        ...
+
+    def remove_one_item(self, barcode: str, quantity: int = 1) -> None:
+        ...
+
+    def get_item_quantity(self, barcode: str) -> int:
+        ...
+
+
+class MagazzinoInterface(Protocol):
+    def get_missing_products_quantity(self) -> list[MissingItem]:
         ...
