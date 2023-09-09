@@ -18,7 +18,6 @@ def add_missing_to_list(
         lista_spesa.update_threshold(missing.barcode, missing.difference)
 
 
-
 def update_row(magazzino, barcode: str, name: str, quantity: int, threshold: int):
     """
     Updates an existing row in the 'magazzino' table with the provided data.

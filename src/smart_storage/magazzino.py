@@ -68,8 +68,6 @@ class Magazzino(ListaSpesa):
         # della tupla result come argomenti al costruttore di StorageItem
         return items
 
-
-
     def get_missing_products_quantity(self) -> list[MissingItem]:
         """
         Retrieve a list of products with quantities below their respective thresholds.

@@ -64,7 +64,11 @@ class ListaSpesa:
 
         items = []
         for result in results:
-            items.append(Item(result[0], result[1], result[2]+result[3]))
+            items.append(
+                Item(result[0], result[1], result[2] + result[3])
+            )  # sommo la quantità + la soglia che è
+            # stata aggiornata dalla funzione add_missing_to_list per risolvere il problema della doppia aggiunta
+            # dei prodotti mancanti
         return items
 
     def erase_database(self) -> None:
@@ -140,4 +144,3 @@ class ListaSpesa:
             (new_threshold, barcode),
         )
         self.con.commit()
-

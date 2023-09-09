@@ -54,6 +54,7 @@ def test_add_missing_to_list_workflow_with_less_treshold():
     os.remove(MOCK_PATH_MAGAZZINO)
     assert current_items == [Item("001", "test", 5)]
 
+
 def test_add_missing_to_list_workflow_with_problem():
     mock_magazzino = Magazzino(MOCK_PATH_MAGAZZINO, mock_prodotti)
     mock_lista_spesa = ListaSpesa(MOCK_PATH_LISTA_SPESA, mock_prodotti)
@@ -116,4 +117,3 @@ def test_add_missing_to_list_workflow_with_problem_more_complicated():
     os.remove(MOCK_PATH_LISTA_SPESA)
     os.remove(MOCK_PATH_MAGAZZINO)
     assert current_items == [Item("001", "test", 6)]
-
