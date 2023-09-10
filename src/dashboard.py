@@ -7,18 +7,24 @@ from smart_storage.dashboard_helper import add_missing_to_list, update_row
 import pandas as pd
 import time
 
-# Set Streamlit page configuration
+# Set Streamlit page configuration and title
 st.set_page_config(page_title="Dashboard Smart Storage", layout="wide")
-
-# Create instances of the storage classes
-prodotti = Prodotti("prodotti.db", Scraper())
-magazzino = Magazzino("magazzino.db", prodotti)
-lista_spesa = ListaSpesa("listaspesa.db", prodotti)
-
 st.title("Dashboard")
 
 
-# Create horizontal buttons
+# Create instances of the classes and cached them to improve performance
+@st.cache_resource
+def initiate_objects():
+    prodotti = Prodotti("prodotti.db", Scraper())
+    magazzino = Magazzino("magazzino.db", prodotti)
+    lista_spesa = ListaSpesa("listaspesa.db", prodotti)
+    return prodotti, magazzino, lista_spesa
+
+
+prodotti, magazzino, lista_spesa = initiate_objects()
+
+
+# Create horizontal buttons layout
 col_button_1, col_button_2 = st.columns([3, 20])
 with col_button_1:
     st.button("Refresh")
@@ -27,8 +33,10 @@ with col_button_2:
     if st.button("Add missing groceries to shopping list"):
         add_missing_to_list(magazzino, lista_spesa)
 
-# Create a DataFrame for the storage items
-df = pd.DataFrame([vars(item) for item in magazzino.get_items()])
+
+# Load the items
+# df = pd.DataFrame([vars(item) for item in magazzino.get_items()])
+df = pd.DataFrame(magazzino.get_items())
 df.rename(
     columns={
         "barcode": "Code",
