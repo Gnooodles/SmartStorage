@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+smart-storage-env/
 .Python
 build/
 develop-eggs/
