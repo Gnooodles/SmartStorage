@@ -1,5 +1,6 @@
 from smart_storage.lista_spesa import ListaSpesa
 from smart_storage.item import Item
+from .test_prodotti import mock_scraper
 import os
 
 
@@ -7,7 +8,7 @@ MOCK_PATH = "src/tests/mock_lista_spesa.db"
 
 
 class MockProdotti:
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, scraper) -> None:
         pass
 
     def get_name_from_barcode(self, barcode: str) -> str:
@@ -17,7 +18,7 @@ class MockProdotti:
         return "test"
 
 
-mock_prodotti = MockProdotti("")
+mock_prodotti = MockProdotti("", mock_scraper)
 
 
 def test_database_creation():
