@@ -40,8 +40,11 @@ class Scraper:
         Retrieve the name of a product from the internet using its barcode.
         """
         # f"https://www.google.com/search?q={barcode}"
-        self._get_url(f"https://www.google.com/search?q={barcode}")
-        self._click_privacy_consense("L2AGLb")
-        result = self._find_element_by_css_selector("h3.LC20lb")
-        name = self._get_name_string(result)
-        return name
+        try:
+            self._get_url(f"https://www.google.com/search?q={barcode}")
+            self._click_privacy_consense("L2AGLb")
+            result = self._find_element_by_css_selector("h3.LC20lb")
+            name = self._get_name_string(result)
+            return name
+        except:
+            return ""
