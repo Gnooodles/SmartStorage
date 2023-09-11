@@ -51,6 +51,6 @@ class Prodotti:
         """
         # Funzione per aggiornare il database con il barcode e il nome trovato tramite lo scraper
         self.cur.execute(
-            "INSERT INTO prodotti (barcode, name) VALUES (?, ?)", (barcode, name)
+            "INSERT INTO prodotti (code, name) VALUES (?, ?)", (barcode, name)
         )
         self.con.commit()

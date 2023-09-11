@@ -70,7 +70,6 @@ while True:
             print(f"{status} - {received_data}")
             remove_one_item(received_data)
         else:
-            # TODO: Handle case when status is empty
             pass
     else:
         pass

@@ -35,9 +35,8 @@ while True:
             magazzino.remove_one_item(received_data)
             lista_spesa.add_item(received_data)
         else:
-            # TODO: Handle case when status is empty
             pass
     else:
         pass
 
-    time.sleep(0.3)
+    #time.sleep(0.3)

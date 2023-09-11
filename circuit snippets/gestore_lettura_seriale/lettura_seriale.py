@@ -66,7 +66,6 @@ while True:
             # scarica dal db e mette nella lista
             print(f"{status} - {recieved_data}")
         else:
-            # TODO caso in cui status è vuoto
             pass
     else:
         pass
