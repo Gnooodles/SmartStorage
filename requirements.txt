@@ -1,0 +1,4 @@
+pandas==2.0.3
+pyserial==3.5
+selenium==3.141.0
+streamlit==1.26.0
