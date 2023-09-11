@@ -2,60 +2,50 @@ import streamlit as st
 from smart_storage.magazzino import Magazzino
 from smart_storage.prodotti import Prodotti
 from smart_storage.lista_spesa import ListaSpesa
+from smart_storage.scraper import Scraper
+from smart_storage.dashboard_helper import add_missing_to_list, update_row
 import pandas as pd
 import time
 
-# Set Streamlit page configuration
+# Set Streamlit page configuration and title
 st.set_page_config(page_title="Dashboard Smart Storage", layout="wide")
-
-# Create instances of the storage classes
-prodotti = Prodotti("prodotti.db")
-magazzino = Magazzino("magazzino.db", prodotti)
-lista_spesa = ListaSpesa("listaspesa.db", prodotti)
-
 st.title("Dashboard")
 
 
-def add_missing_to_list():
-    """
-    Add missing products to the shopping list.
-    Checks for products in the warehouse with quantities below the threshold and adds them to the shopping list.
-    """
-    missing_products = magazzino.get_missing_product_quantity()
-    for missing in missing_products:
-        already_in_list = lista_spesa.get_item_quantity(missing["barcode"])
-        print(already_in_list)
-        lista_spesa.remove_one_item(missing["barcode"])
-        new_quantity = already_in_list + missing["difference"]
-        lista_spesa.add_item(missing["barcode"], quantity=new_quantity)
+# Create instances of the classes and cached them to improve performance
+@st.cache_resource
+def initiate_objects():
+    prodotti = Prodotti("prodotti.db", Scraper())
+    magazzino = Magazzino("magazzino.db", prodotti)
+    lista_spesa = ListaSpesa("listaspesa.db", prodotti)
+    return prodotti, magazzino, lista_spesa
 
 
-# Create horizontal buttons
+prodotti, magazzino, lista_spesa = initiate_objects()
+
+
+# Create horizontal buttons layout
 col_button_1, col_button_2 = st.columns([3, 20])
 with col_button_1:
     st.button("Refresh")
 
 with col_button_2:
     if st.button("Add missing groceries to shopping list"):
-        add_missing_to_list()
-    # TODO: Implement adding items with quantities below the threshold to the shopping list
+        add_missing_to_list(magazzino, lista_spesa)
 
-# Create a DataFrame for the storage items
-df = pd.DataFrame(
-    magazzino.get_items(), columns=["Code", "Name", "Quantity", "Threshold"]
+
+# Load the items
+# df = pd.DataFrame([vars(item) for item in magazzino.get_items()])
+df = pd.DataFrame(magazzino.get_items())
+df.rename(
+    columns={
+        "barcode": "Code",
+        "name": "Name",
+        "quantity": "Quantity",
+        "threshold": "Threshold",
+    },
+    inplace=True,
 )
-
-
-# Function to highlight the 'Quantity' column if it's below the 'Threshold'
-def highlight_threshold(row):
-    highlight = (
-        "background-color: firebrick; color: white"  # Colors: orangered, firebrick
-    )
-    default = ""
-    if row["Quantity"] < row["Threshold"]:
-        return [highlight, default]
-    else:
-        return [default, default]
 
 
 # Create an editable table from the DataFrame with row highlighting
@@ -71,15 +61,11 @@ edited_data = st.data_editor(
 
 if st.button("Salva modifiche"):
     for i, row in edited_data.iterrows():
-        # sta query l'ho fatta partire usando direttamente il cursore di magazzino,
-        # non è pulito ma non avevo voglia di cambiare il magazzino
-        magazzino.cur.execute(
-            f"""UPDATE magazzino 
-                SET barcode = '{row['Code']}', name = '{row['Name']}', quantity = {row['Quantity']}, threshold = {row['Threshold']}
-                WHERE barcode = '{row['Code']}'
-        """
-        )
-        magazzino.con.commit()
+        barcode = row["Code"]
+        name = row["Name"]
+        quantity = row["Quantity"]
+        threshold = row["Threshold"]
+        update_row(magazzino, barcode, name, quantity, threshold)
 
     st.success("Modifiche salvate con successo!")
     time.sleep(0.5)

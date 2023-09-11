@@ -1,8 +1,10 @@
 import sqlite3
-from smart_storage.prodotti import Prodotti
+from smart_storage.interfaces import ProductFinderInterface
+from smart_storage.item import StorageItem, MissingItem
+from smart_storage.lista_spesa import ListaSpesa
 
 
-class Magazzino:
+class Magazzino(ListaSpesa):
     """
     A class representing a storage system.
 
@@ -13,13 +15,14 @@ class Magazzino:
         path (str): The path to the SQLite database file.
     """
 
-    def __init__(self, path: str, prodotti: Prodotti) -> None:
+    def __init__(self, path: str, prodotti: ProductFinderInterface) -> None:
+        self.table_name = "magazzino"
         self.path = path
         self.prodotti = prodotti
         self.con = sqlite3.connect(self.path)
         self.cur = self.con.cursor()
         self.cur.execute(
-            "CREATE TABLE IF NOT EXISTS magazzino(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER, threshold INTEGER)"
+            f"CREATE TABLE IF NOT EXISTS {self.table_name}(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER, threshold INTEGER)"
         )
 
     def add_item(self, barcode: str) -> None:
@@ -37,111 +40,40 @@ class Magazzino:
         # Fetch the item's name based on the barcode.
         name = self.prodotti.get_name_from_barcode(barcode)
 
-        # Check if the item already exists in the database
-        existing_item = self.cur.execute(
-            f"SELECT * FROM magazzino WHERE barcode = '{barcode}'"
-        ).fetchone()
-
-        if existing_item is None:
-            # Insert a new item into the database with initial quantity of 1
+        with self.con:
+            # Use a parameterized query to avoid SQL injection
             self.cur.execute(
-                f"INSERT INTO magazzino VALUES ('{barcode}', '{name}', 1, 0)"
-            )
-        else:
-            # Increment the quantity of the existing item
-            quantity = self.get_item_quantity(barcode)
-            self.cur.execute(
-                f"UPDATE magazzino SET quantity = {quantity + 1} WHERE barcode = '{barcode}'"
+                f"""
+                INSERT INTO {self.table_name} (barcode, name, quantity, threshold)
+                VALUES (?, ?, 1, 0)
+                ON CONFLICT(barcode) DO UPDATE
+                SET quantity = quantity + 1;
+                """,
+                (barcode, name),
             )
 
-        # Commit the changes to the database
-        self.con.commit()
-
-    def get_items(self):
+    def get_items(self) -> list[StorageItem]:
         """
         Retrieve all items from the database.
 
         Returns:
-            list: A list of tuples representing items in the format (barcode, name, quantity).
+            list: A list of StorageItems.
         """
-        res = self.cur.execute("SELECT * FROM magazzino")
-        return res.fetchall()
+        res = self.cur.execute(f"SELECT * FROM {self.table_name}")
+        results = res.fetchall()
 
-    def erase_database(self):
-        """
-        Delete the database file.
+        items = [
+            StorageItem(*result) for result in results
+        ]  # StorageItem(*result) per passare tutti gli elementi
+        # della tupla result come argomenti al costruttore di StorageItem
+        return items
 
-        Caution: This operation is irreversible and will result in permanent data loss.
-        """
-        self.cur.execute("DELETE FROM magazzino")
-        self.con.commit()
-
-    def get_item_quantity(self, barcode: str) -> int:
-        """
-        Get the quantity of a specific item based on its barcode.
-
-        Args:
-            barcode (str): The barcode of the item.
-
-        Returns:
-            int: The quantity of the item.
-        """
-        current_quantity = self.cur.execute(
-            f"SELECT quantity FROM magazzino WHERE barcode = '{barcode}'"
-        ).fetchone()
-        if current_quantity is None:
-            return 0
-
-        return current_quantity[0]
-
-    def remove_one_item(self, barcode: str):
-        """
-        Remove one quantity of the specified item from the database.
-
-        Args:
-            barcode (str): The barcode of the item to be removed.
-
-        If the item's quantity is greater than 1, its quantity is decremented by 1.
-        If the item's quantity is 1, the item is completely removed from the database.
-        """
-        existing_item = self.cur.execute(
-            f"SELECT * FROM magazzino WHERE barcode = '{barcode}'"
-        ).fetchone()
-
-        if existing_item is not None:
-            quantity = self.get_item_quantity(barcode)
-
-            if quantity == 1:
-                self.cur.execute(f"DELETE FROM magazzino WHERE barcode = '{barcode}'")
-            else:
-                self.cur.execute(
-                    f"UPDATE magazzino SET quantity = {quantity - 1} WHERE barcode = '{barcode}'"
-                )
-
-            # Commit the changes to the database
-            self.con.commit()
-
-    def update_threshold(self, barcode: str, new_threshold: int):
-        """
-        Update the threshold quantity for a product in the warehouse.
-
-        Args:
-            barcode (str): The barcode of the product to update.
-            new_threshold (int): The new threshold quantity for the product.
-        """
-        self.cur.execute(
-            f"UPDATE magazzino SET threshold = {new_threshold} WHERE barcode = '{barcode}'"
-        )
-        self.con.commit()
-
-    def get_missing_product_quantity(self) -> list[dict]:
+    def get_missing_products_quantity(self) -> list[MissingItem]:
         """
         Retrieve a list of products with quantities below their respective thresholds.
 
         Returns:
-            list[dict]: A list of dictionaries containing information about missing products.
-                Each dictionary has the keys 'barcode' and 'difference', representing the
-                product's barcode and the difference between its threshold and current quantity.
+            list[MissingItem]: A list of MissingItems
         """
         missing_list = self.cur.execute(
             """SELECT barcode, quantity, threshold
@@ -149,9 +81,11 @@ class Magazzino:
                 WHERE quantity < threshold
             """
         ).fetchall()
-        difference = []
+        missing_products = []
 
-        for miss in missing_list:
-            difference.append({"barcode": miss[0], "difference": miss[2] - miss[1]})
+        for row in missing_list:
+            missing_products.append(
+                MissingItem(barcode=row[0], difference=row[2] - row[1])
+            )
 
-        return difference
+        return missing_products

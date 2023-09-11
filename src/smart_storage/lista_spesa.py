@@ -1,6 +1,7 @@
 import sqlite3
-from smart_storage.prodotti import Prodotti
-import os
+
+from smart_storage.interfaces import ProductFinderInterface
+from smart_storage.item import Item
 
 
 class ListaSpesa:
@@ -14,13 +15,14 @@ class ListaSpesa:
         path (str): The path to the SQLite database file.
     """
 
-    def __init__(self, path: str, prodotti: Prodotti) -> None:
+    def __init__(self, path: str, prodotti: ProductFinderInterface) -> None:
+        self.table_name = "lista"
         self.path = path
         self.prodotti = prodotti
         self.con = sqlite3.connect(self.path)
         self.cur = self.con.cursor()
         self.cur.execute(
-            "CREATE TABLE IF NOT EXISTS lista(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER)"
+            f"CREATE TABLE IF NOT EXISTS {self.table_name}(barcode TEXT PRIMARY KEY, name TEXT, quantity INTEGER, threshold INTEGER)"
         )
 
     def add_item(self, barcode: str, quantity: int = 1) -> None:
@@ -38,43 +40,44 @@ class ListaSpesa:
 
         name = self.prodotti.get_name_from_barcode(barcode)
 
-        # Check if the item already exists in the database
-        existing_item = self.cur.execute(
-            f"SELECT * FROM lista WHERE barcode = '{barcode}'"
-        ).fetchone()
-
-        if existing_item is None:
-            # Insert a new item into the database with initial quantity of 1
+        with self.con:
+            # Use a parameterized query to avoid SQL injection
             self.cur.execute(
-                f"INSERT INTO lista VALUES ('{barcode}', '{name}', {quantity})"
-            )
-        else:
-            # Increment the quantity of the existing item
-            old_quantity = self.get_item_quantity(barcode)
-            self.cur.execute(
-                f"UPDATE lista SET quantity = {old_quantity + quantity} WHERE barcode = '{barcode}'"
+                f"""
+                INSERT INTO {self.table_name} (barcode, name, quantity, threshold)
+                VALUES (?, ?, ?, 0)
+                ON CONFLICT(barcode) DO UPDATE
+                SET quantity = quantity + ?;
+                """,
+                (barcode, name, quantity, quantity),
             )
 
-        # Commit the changes to the database
-        self.con.commit()
-
-    def get_items(self):
+    def get_items(self) -> list[Item]:
         """
         Retrieve all items from the database.
 
         Returns:
-            list: A list of tuples representing items in the format (barcode, name, quantity).
+            list: A list of Items.
         """
-        res = self.cur.execute("SELECT * FROM lista")
-        return res.fetchall()
+        res = self.cur.execute(f"SELECT * FROM {self.table_name}")
+        results = res.fetchall()
 
-    def erase_database(self):
+        items = []
+        for result in results:
+            items.append(
+                Item(result[0], result[1], result[2] + result[3])
+            )  # sommo la quantità + la soglia che è
+            # stata aggiornata dalla funzione add_missing_to_list per risolvere il problema della doppia aggiunta
+            # dei prodotti mancanti
+        return items
+
+    def erase_database(self) -> None:
         """
-        Delete the database file.
+        Delete all data from the database table.
 
         Caution: This operation is irreversible and will result in permanent data loss.
         """
-        self.cur.execute("DELETE FROM lista")
+        self.cur.execute(f"DELETE FROM {self.table_name}")
         self.con.commit()
 
     def get_item_quantity(self, barcode: str) -> int:
@@ -88,7 +91,7 @@ class ListaSpesa:
             int: The quantity of the item.
         """
         current_quantity = self.cur.execute(
-            f"SELECT quantity FROM lista WHERE barcode = '{barcode}'"
+            f"SELECT quantity FROM {self.table_name} WHERE barcode = ?", (barcode,)
         ).fetchone()
 
         if current_quantity is None:
@@ -96,29 +99,48 @@ class ListaSpesa:
 
         return current_quantity[0]
 
-    def remove_one_item(self, barcode: str, quantity: int = 1):
+    def remove_one_item(self, barcode: str, quantity: int = 1) -> None:
         """
-        Remove one quantity of the specified item from the database.
+        Remove one or more quantities of the specified item from the database.
 
         Args:
             barcode (str): The barcode of the item to be removed.
+            quantity (int, optional): The quantity to be removed (default is 1).
 
-        If the item's quantity is greater than 1, its quantity is decremented by 1.
-        If the item's quantity is 1, the item is completely removed from the database.
+        This function removes one or more quantities of the specified item from the database. If the item's
+        quantity is greater than the specified quantity, its quantity is decremented accordingly. If the
+        item's quantity is equal to or less than the specified quantity, the item is completely removed
+        from the database.
         """
         existing_item = self.cur.execute(
-            f"SELECT * FROM lista WHERE barcode = '{barcode}'"
+            f"SELECT * FROM {self.table_name} WHERE barcode = '{barcode}'"
         ).fetchone()
 
         if existing_item is not None:
             old_quantity = self.get_item_quantity(barcode)
 
             if old_quantity == 1:
-                self.cur.execute(f"DELETE FROM lista WHERE barcode = '{barcode}'")
+                self.cur.execute(
+                    f"DELETE FROM {self.table_name} WHERE barcode = '{barcode}'"
+                )
             else:
                 self.cur.execute(
-                    f"UPDATE lista SET quantity = {old_quantity - quantity} WHERE barcode = '{barcode}'"
+                    f"UPDATE {self.table_name} SET quantity = {old_quantity - quantity} WHERE barcode = '{barcode}'"
                 )
 
             # Commit the changes to the database
             self.con.commit()
+
+    def update_threshold(self, barcode: str, new_threshold: int) -> None:
+        """
+        Update the threshold quantity for a product in the warehouse.
+
+        Args:
+            barcode (str): The barcode of the product to update.
+            new_threshold (int): The new threshold quantity for the product.
+        """
+        self.cur.execute(
+            f"UPDATE {self.table_name} SET threshold = ? WHERE barcode = ?",
+            (new_threshold, barcode),
+        )
+        self.con.commit()

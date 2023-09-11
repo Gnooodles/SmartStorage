@@ -1,21 +1,24 @@
-from smart_storage.lettura_seriale import *
+from smart_storage.lettura_seriale import SerialReader
 from smart_storage.magazzino import Magazzino
 from smart_storage.prodotti import Prodotti
 from smart_storage.lista_spesa import ListaSpesa
+from smart_storage.scraper import Scraper
 import time
 
 # Create an instance of the Magazzino class, initializing the storage system
-prodotti = Prodotti("prodotti.db")
+prodotti = Prodotti("prodotti.db", Scraper())
 magazzino = Magazzino("magazzino.db", prodotti)
 lista_spesa = ListaSpesa("listaspesa.db", prodotti)
 
 # Initialize the status variable to track the current operation mode
 status = ""
 
+serial_reader = SerialReader("/dev/tty.usbmodem1201")
+
 while True:
     # Continuously monitor and process data from serial input
-    start_scan()
-    received_data = recieve_data()
+    serial_reader.start_scan()
+    received_data = serial_reader.recieve_data()
     if received_data == "CARICA":
         status = "CARICA"
     elif received_data == "SCARICA":
