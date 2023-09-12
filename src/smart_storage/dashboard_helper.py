@@ -42,14 +42,3 @@ def delete_row(
     """
     magazzino.delete_item(barcode)
 
-
-# Function to highlight the 'Quantity' column if it's below the 'Threshold'
-def highlight_threshold(row):
-    highlight = (
-        "background-color: firebrick; color: white"  # Colors: orangered, firebrick
-    )
-    default = ""
-    if row["Quantity"] < row["Threshold"]:
-        return [highlight, default]
-    else:
-        return [default, default]
