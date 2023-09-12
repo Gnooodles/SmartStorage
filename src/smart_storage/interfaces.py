@@ -31,7 +31,23 @@ class ListaSpesaInterface(Protocol):
     def update_threshold(self, barcode: str, new_threshold: int) -> None:
         ...
 
+    def delete_item(self, barcode: str) -> None:
+        ...
+
+    def update_item(
+        self, barcode: str, name: str, quantity: int, threshold: int
+    ) -> None:
+        ...
+
 
 class MagazzinoInterface(Protocol):
     def get_missing_products_quantity(self) -> list[MissingItem]:
+        ...
+
+    def delete_item(self, barcode: str) -> None:
+        ...
+
+    def update_item(
+        self, barcode: str, name: str, quantity: int, threshold: int
+    ) -> None:
         ...

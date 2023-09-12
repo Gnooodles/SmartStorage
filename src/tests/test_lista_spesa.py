@@ -164,3 +164,25 @@ def test_remove_one_item_non_present_with_other_items():
     current_items = lista_spesa.get_items()
     os.remove(MOCK_PATH)
     assert current_items == expected_items
+
+
+def test_delete_item():
+    lista_spesa = ListaSpesa(MOCK_PATH, mock_prodotti)
+    lista_spesa.add_item("222222")
+    lista_spesa.add_item("222222")
+    lista_spesa.add_item("333333")
+    lista_spesa.delete_item("222222")
+    expected_items = [Item("333333", "test", 1)]
+    current_items = lista_spesa.get_items()
+    os.remove(MOCK_PATH)
+    assert current_items == expected_items
+
+
+def test_update_item():
+    lista_spesa = ListaSpesa(MOCK_PATH, mock_prodotti)
+    lista_spesa.add_item("222222")
+    lista_spesa.update_item("222222", "test test test", 100, 200)
+    expected_items = [Item("222222", "test test test", 300)]
+    current_items = lista_spesa.get_items()
+    os.remove(MOCK_PATH)
+    assert current_items == expected_items

@@ -19,19 +19,28 @@ def add_missing_to_list(
         lista_spesa.update_threshold(missing.barcode, missing.difference)
 
 
-def update_row(magazzino, barcode: str, name: str, quantity: int, threshold: int):
+def update_row(
+    magazzino: MagazzinoInterface | ListaSpesaInterface,
+    barcode: str,
+    name: str,
+    quantity: int,
+    threshold: int,
+):
     """
-    Updates an existing row in the 'magazzino' table with the provided data.
+    Updates an existing row in the magazzino with the provided data.
     The row to update is identified by its barcode. If a row with the given barcode
     does not exist in the table, no changes are made.
     """
-    query = """
-            UPDATE magazzino 
-            SET name = ?, quantity = ?, threshold = ?
-            WHERE barcode = ?
-        """
-    magazzino.cur.execute(query, (name, quantity, threshold, barcode))
-    magazzino.con.commit()
+    magazzino.update_item(barcode, name, quantity, threshold)
+
+
+def delete_row(
+    magazzino: ListaSpesaInterface | MagazzinoInterface, barcode: str
+) -> None:
+    """
+    Delete a row from the magazzino based on the barcode provided.
+    """
+    magazzino.delete_item(barcode)
 
 
 # Function to highlight the 'Quantity' column if it's below the 'Threshold'

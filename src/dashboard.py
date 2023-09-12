@@ -3,7 +3,7 @@ from smart_storage.magazzino import Magazzino
 from smart_storage.prodotti import Prodotti
 from smart_storage.lista_spesa import ListaSpesa
 from smart_storage.scraper import Scraper
-from smart_storage.dashboard_helper import add_missing_to_list, update_row
+from smart_storage.dashboard_helper import add_missing_to_list, update_row, delete_row
 import pandas as pd
 import time
 
@@ -51,6 +51,7 @@ df.rename(
 # Create an editable table from the DataFrame with row highlighting
 edited_data = st.data_editor(
     df,  # .style.apply(highlight_threshold, subset=["Quantity", "Threshold"], axis=1),
+    num_rows="dynamic",
     hide_index=True,
     use_container_width=True,
     key="data_editor",
@@ -60,12 +61,20 @@ edited_data = st.data_editor(
 
 
 if st.button("Salva modifiche"):
+    barcodes = []
     for i, row in edited_data.iterrows():
         barcode = row["Code"]
         name = row["Name"]
         quantity = row["Quantity"]
         threshold = row["Threshold"]
         update_row(magazzino, barcode, name, quantity, threshold)
+        # Save the barcodes after the changes
+        barcodes.append(barcode)
+
+    # Check if a barcode is not anymore in the rows after the changes
+    for code in df["Code"].to_list():
+        if code not in barcodes:
+            delete_row(magazzino, code)
 
     st.success("Modifiche salvate con successo!")
     time.sleep(0.5)

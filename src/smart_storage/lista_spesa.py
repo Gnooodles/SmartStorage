@@ -144,3 +144,28 @@ class ListaSpesa:
             (new_threshold, barcode),
         )
         self.con.commit()
+
+    def delete_item(self, barcode: str) -> None:
+        """
+        Delete a product from the database based on the barcode.
+
+        Args:
+            barcode (str): The barcode of the product to delete.
+        """
+        with self.con:
+            self.cur.execute(
+                f"DELETE from {self.table_name} WHERE barcode = ?", (barcode,)
+            )
+
+    def update_item(
+        self, barcode: str, name: str, quantity: int, threshold: int
+    ) -> None:
+        with self.con:
+            self.cur.execute(
+                f"""
+            UPDATE {self.table_name} 
+            SET name = ?, quantity = ?, threshold = ?
+            WHERE barcode = ?
+            """,
+                (name, quantity, threshold, barcode),
+            )
